@@ -1,0 +1,29 @@
+{
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "targetDefaults": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["{projectRoot}/build, coverage"],
+      "cache": true
+    },
+    "build:release": {
+      "dependsOn": ["^build:release"],
+      "outputs": ["{projectRoot}/build"],
+      "cache": true
+    },
+    "lint": {
+      "dependsOn": ["^lint"],
+      "cache": true
+    },
+    "test": {
+      "dependsOn": ["^test"],
+      "outputs": ["{projectRoot}/coverage"],
+      "cache": true
+    },
+    "test:coverage": {
+      "outputs": ["{projectRoot}/coverage"],
+      "cache": true
+    }
+  },
+  "defaultBase": "main"
+}

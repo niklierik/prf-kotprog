@@ -1,0 +1,7 @@
+{
+  "exec": "yarn run build && yarn run start",
+  "verbose": true,
+  "watch": ["src"],
+  "ignore": ["build"],
+  "ext": "ts"
+}

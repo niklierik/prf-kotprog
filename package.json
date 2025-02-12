@@ -1,0 +1,19 @@
+{
+  "workspaces": [
+    "projects/frontend",
+    "projects/backend",
+    "projects/common"
+  ],
+  "private": true,
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "nodemon": "^3.1.9",
+    "nx": "20.4.2"
+  },
+  "scripts": {
+    "frontend": "nx run @kotprog/frontend:\"serve\"",
+    "backend": "nx run @kotprog/backend:\"dev\" --watch",
+    "common": "nx run @kotprog/common:\"build:\"watch"
+  },
+  "dependencies": {}
+}
