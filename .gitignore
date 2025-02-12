@@ -25,6 +25,11 @@ node_modules/
 # Misc
 **/.DS_Store
 
+# Nx
 
 .nx/cache
 .nx/workspace-data
+
+# App config
+
+projects/backend/env.json

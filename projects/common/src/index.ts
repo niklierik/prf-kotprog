@@ -1,3 +1,1 @@
-export function testHelloWorld(): string {
-  return 'Hello World';
-}
+export * from './auth/index.js';
