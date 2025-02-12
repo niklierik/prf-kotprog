@@ -11,7 +11,7 @@
     "nx": "20.4.2"
   },
   "scripts": {
-    "frontend": "nx run @kotprog/frontend:\"serve\"",
+    "frontend": "nx run @kotprog/frontend:\"start\"",
     "backend": "nx run @kotprog/backend:\"dev\" --watch",
     "common": "nx run @kotprog/common:\"build:\"watch"
   },

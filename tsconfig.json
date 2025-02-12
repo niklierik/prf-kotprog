@@ -9,16 +9,22 @@
     "alwaysStrict": true,
     "sourceMap": true,
     "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitReturns": true,
+    "noImplicitOverride": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitAny": false,
     "noImplicitThis": false,
+    "noPropertyAccessFromIndexSignature": true,
     "strictNullChecks": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "declaration": true,
-    "declarationMap": true
+    "declarationMap": true,
+    "strict": true
   }
 }
