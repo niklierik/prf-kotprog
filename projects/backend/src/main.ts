@@ -1,7 +1,8 @@
 import express, { Router } from 'express';
 import { config } from './config/config.js';
-import { authRouter } from './users/auth.js';
+import { authRouter } from './users/auth.endpoints.js';
 import { connectToDb } from './db/db.js';
+import { healthRouter } from './health/health.endpoints.js';
 
 await connectToDb();
 
@@ -10,6 +11,7 @@ app.use(express.json());
 
 const apiRouter = Router();
 apiRouter.use('/auth', authRouter);
+apiRouter.use('/health', healthRouter);
 
 app.use('/api', apiRouter);
 

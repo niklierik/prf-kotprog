@@ -3,6 +3,8 @@ services:
   mongo:
     image: mongo
     restart: always
+    volumes:
+      - "mongo_volume:/data/db"
     ports:
       - 27017:27017
     environment:
@@ -19,3 +21,45 @@ services:
       ME_CONFIG_MONGODB_ADMINPASSWORD: example
       ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
       ME_CONFIG_BASICAUTH: false
+
+  frontend:
+    build: ./projects/frontend
+    restart: always
+    ports:
+      - 4200:4200
+    volumes:
+      - "projects_volume:/home/node/app"
+  backend:
+    build: ./projects/backend
+    restart: always
+    volumes:
+      - "projects_volume:/home/node/app"
+  common:
+    build: ./projects/common
+    restart: always
+    volumes:
+      - "projects_volume:/home/node/app"
+
+  nginx:
+    image: nginx
+    restart: always
+    ports:
+      - 81:80
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    command: [nginx-debug, '-g', 'daemon off;']
+  
+volumes:
+  projects_volume:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: "."
+  mongo_volume:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: "./mongo_data"
+
