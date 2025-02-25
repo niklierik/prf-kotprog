@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import {
   AuthLoginResponse,
   AuthRegisterResponse,
+  TokenPayload,
   authLoginRequestSchema,
   authRegisterRequestSchema,
 } from '@kotprog/common';
@@ -31,7 +32,6 @@ async function register(req: Request, res: Response): Promise<void> {
 
   const response: AuthRegisterResponse = {
     email: user._id,
-    password: user.password,
   };
 
   res.status(201);
@@ -52,7 +52,9 @@ async function login(req: Request, res: Response): Promise<void> {
     throw new HttpError(401, 'Invalid credentials.');
   }
 
-  const jwt = sign({ email }, config.auth.secret, {
+  const payload: TokenPayload = { email };
+
+  const jwt = sign(payload, config.auth.secret, {
     expiresIn: config.auth.tokenExpiresIn as StringValue,
   });
   const response: AuthLoginResponse = { jwt };

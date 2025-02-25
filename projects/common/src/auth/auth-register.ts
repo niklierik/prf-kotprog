@@ -9,5 +9,4 @@ export type AuthRegisterRequest = InferType<typeof authRegisterRequestSchema>;
 
 export interface AuthRegisterResponse {
   email: string;
-  password: string;
 }
