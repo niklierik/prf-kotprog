@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AuthRequestService } from './auth-request.service';
 import { AuthStorageService } from './auth-storage.service';
+import { AuthRegisterRequest } from '@kotprog/common';
 
 @Injectable({
   providedIn: 'root',
@@ -25,6 +26,14 @@ export class AuthService {
       console.error(`Failed to login user '${email}'.`);
       console.error(e);
 
+      throw e;
+    }
+  }
+
+  public async register(data: AuthRegisterRequest) {
+    try {
+      await this.authRequestService.register(data);
+    } catch (e) {
       throw e;
     }
   }
