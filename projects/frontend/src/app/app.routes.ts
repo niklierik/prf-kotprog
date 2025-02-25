@@ -5,6 +5,7 @@ import { RegisterComponent } from './pages/register/register.component';
 import { ArticleComponent } from './pages/article/article.component';
 import { ComposeComponent } from './pages/compose/compose.component';
 import { AdminComponent } from './pages/admin/admin.component';
+import { authenticatedGuard } from './guards/authenticated.guard';
 
 export const routes: Routes = [
   {
@@ -26,6 +27,7 @@ export const routes: Routes = [
   {
     path: 'compose',
     component: ComposeComponent,
+    canActivate: [authenticatedGuard],
   },
   {
     path: 'admin',
