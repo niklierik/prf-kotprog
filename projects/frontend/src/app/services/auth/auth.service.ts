@@ -41,4 +41,12 @@ export class AuthService {
   public isAuthenticated(): boolean {
     return this.authStorageService.getAuthToken() != undefined;
   }
+
+  public getAuthToken() {
+    return this.authStorageService.getAuthToken();
+  }
+
+  public getPayload() {
+    return this.authStorageService.getPayload();
+  }
 }

@@ -15,6 +15,10 @@ export class AuthRequestService {
   public async login(data: AuthLoginRequest): Promise<AuthLoginResponse> {
     const result = await fetch('/api/auth/login', {
       body: JSON.stringify(data),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
     });
     const response: AuthLoginResponse = await result.json();
     return response;
@@ -25,6 +29,10 @@ export class AuthRequestService {
   ): Promise<AuthRegisterResponse> {
     const result = await fetch('/api/auth/register', {
       body: JSON.stringify(data),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      method: 'POST',
     });
 
     const response: AuthRegisterResponse = await result.json();
