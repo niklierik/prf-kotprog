@@ -3,6 +3,7 @@ import { config } from './config/config.js';
 import { authRouter } from './users/auth.endpoints.js';
 import { connectToDb } from './db/db.js';
 import { healthRouter } from './health/health.endpoints.js';
+import { errorHandlerMiddleware } from './errors/error-handler.middleware.js';
 
 await connectToDb();
 
@@ -14,6 +15,8 @@ apiRouter.use('/auth', authRouter);
 apiRouter.use('/health', healthRouter);
 
 app.use('/api', apiRouter);
+
+app.use(errorHandlerMiddleware);
 
 app.listen(config.app.port, (error) => {
   if (error) {

@@ -1,1 +1,3 @@
-export interface TokenPayload {}
+export interface TokenPayload {
+  email: string;
+}

@@ -6,11 +6,10 @@ import {
   authLoginRequestSchema,
   authRegisterRequestSchema,
 } from '@kotprog/common';
-import { makeEndpoint } from '../endpoint/endpoint.js';
 import { User } from './user.entity.js';
 import { compare, hash } from 'bcrypt';
 import moment from 'moment';
-import { HttpError } from '../endpoint/http-error.js';
+import { HttpError } from '../errors/http-error.js';
 import jwt from 'jsonwebtoken';
 const { sign } = jwt;
 import { config } from '../config/config.js';
@@ -65,7 +64,7 @@ async function login(req: Request, res: Response): Promise<void> {
 
 const authRouter = Router();
 
-authRouter.post('/register', makeEndpoint(register));
-authRouter.post('/login', makeEndpoint(login));
+authRouter.post('/register', register);
+authRouter.post('/login', login);
 
 export { authRouter };
