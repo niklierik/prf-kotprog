@@ -3,6 +3,8 @@ import { HttpError } from '../errors/http-error.js';
 import { config } from '../config/config.js';
 
 import jwt from 'jsonwebtoken';
+import { TokenPayload } from '@kotprog/common';
+import { User } from './user.entity.js';
 const { verify } = jwt;
 
 export async function authMiddleware(
@@ -30,7 +32,8 @@ export async function authMiddleware(
     const jwtToken = authHeader.substring('Bearer '.length);
 
     try {
-      verify(jwtToken, config.auth.secret, {});
+      const payload = verify(jwtToken, config.auth.secret, {}) as TokenPayload;
+      req.user = await User.findById(payload.email).select('-password').then();
     } catch {
       throw new HttpError(401, errorMessage);
     }
