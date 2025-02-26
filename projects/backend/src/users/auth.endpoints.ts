@@ -10,10 +10,12 @@ import { User } from './user.entity.js';
 import { compare, hash } from 'bcrypt';
 import moment from 'moment';
 import { HttpError } from '../errors/http-error.js';
-import jwt from 'jsonwebtoken';
-const { sign } = jwt;
 import { config } from '../config/config.js';
 import type { StringValue } from 'ms';
+import { authMiddleware } from './auth.middleware.js';
+
+import jwt from 'jsonwebtoken';
+const { sign } = jwt;
 
 async function register(req: Request, res: Response): Promise<void> {
   const { email, password } = await authRegisterRequestSchema.validate(
@@ -62,9 +64,20 @@ async function login(req: Request, res: Response): Promise<void> {
   res.send(response);
 }
 
+async function checkLogin(req: Request, res: Response): Promise<void> {
+  res.status(200);
+  res.send({});
+}
+
 const authRouter = Router();
 
 authRouter.post('/register', register);
 authRouter.post('/login', login);
+
+const checkLoginRouter = Router();
+checkLoginRouter.use(authMiddleware);
+checkLoginRouter.get('/', checkLogin);
+
+authRouter.use('/checklogin', checkLoginRouter);
 
 export { authRouter };

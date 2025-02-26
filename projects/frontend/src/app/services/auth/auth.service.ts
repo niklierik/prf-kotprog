@@ -10,7 +10,9 @@ export class AuthService {
   public constructor(
     private readonly authRequestService: AuthRequestService,
     private readonly authStorageService: AuthStorageService,
-  ) {}
+  ) {
+    authRequestService.checkLogin();
+  }
 
   public async login(
     email: string,
@@ -35,6 +37,15 @@ export class AuthService {
       await this.authRequestService.register(data);
     } catch (e) {
       throw e;
+    }
+  }
+
+  public async checkLogin(): Promise<void> {
+    try {
+      await this.authRequestService.checkLogin();
+    } catch (e) {
+      this.authStorageService.setAuthToken(undefined, true);
+      console.warn('Failed to validate current auth token.', e);
     }
   }
 

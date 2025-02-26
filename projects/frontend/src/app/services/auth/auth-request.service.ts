@@ -38,4 +38,8 @@ export class AuthRequestService {
     const response: AuthRegisterResponse = await result.json();
     return response;
   }
+
+  public async checkLogin(): Promise<void> {
+    await fetch('/api/auth/checklogin', { method: 'GET' });
+  }
 }

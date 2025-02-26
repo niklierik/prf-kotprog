@@ -1,14 +1,17 @@
 import { Request, Response } from 'express';
 import { HttpError } from '../errors/http-error.js';
-import { verify } from 'jsonwebtoken';
 import { config } from '../config/config.js';
+
+import jwt from 'jsonwebtoken';
+const { verify } = jwt;
 
 export async function authMiddleware(
   req: Request,
   res: Response,
-  next: () => unknown,
+  next: (...args: unknown[]) => unknown,
 ): Promise<void> {
   try {
+    console.log('Entering auth middleware');
     const { headers } = req;
     const authHeader = headers['authorization'];
 
@@ -28,20 +31,23 @@ export async function authMiddleware(
 
     try {
       verify(jwtToken, config.auth.secret, {});
-    } catch (e) {
+    } catch {
       throw new HttpError(401, errorMessage);
     }
 
     await next();
   } catch (e) {
     if (e instanceof HttpError) {
-      throw e;
+      next(e);
+      return;
     }
 
     console.error('Failed to authenticate request for unhandled reason.', e);
-    throw new HttpError(
-      401,
-      'Failed to authenticate request because of unknown internal server error.',
+    next(
+      new HttpError(
+        500,
+        'Failed to authenticate request because of unknown internal server error.',
+      ),
     );
   }
 }
