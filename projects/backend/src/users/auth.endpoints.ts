@@ -8,7 +8,6 @@ import {
 } from '@kotprog/common';
 import { User } from './user.entity.js';
 import { compare, hash } from 'bcrypt';
-import moment from 'moment';
 import { HttpError } from '../errors/http-error.js';
 import { config } from '../config/config.js';
 import type { StringValue } from 'ms';
@@ -27,7 +26,6 @@ async function register(req: Request, res: Response): Promise<void> {
   const user = new User({
     _id: email,
     password: passwordHashed,
-    createdAt: moment().utc().toDate(),
   });
   await user.save();
 
