@@ -33,7 +33,10 @@ export async function authMiddleware(
 
     try {
       const payload = verify(jwtToken, config.auth.secret, {}) as TokenPayload;
-      req.user = await User.findById(payload.email).select('-password').then();
+      req.user = await User.findById(payload.email)
+        .select('-password')
+        .lean()
+        .then();
     } catch {
       throw new HttpError(401, errorMessage);
     }

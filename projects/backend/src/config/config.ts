@@ -11,6 +11,10 @@ export interface Config {
     salt: number;
     secret: string;
     tokenExpiresIn: string;
+    superadmin: {
+      username: string;
+      password: string;
+    };
   };
 }
 

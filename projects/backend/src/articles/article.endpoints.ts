@@ -8,6 +8,7 @@ import {
 } from '@kotprog/common';
 import { ObjectId } from 'mongodb';
 import { User } from '../users/user.entity.js';
+import { Label } from '../labels/label.entity.js';
 
 const articleRouter = Router();
 
@@ -44,7 +45,7 @@ async function getArticles(req: Request, res: Response): Promise<void> {
   const articles = await Article.find({})
     .skip(page * length)
     .limit(length)
-    .populate<{ author: User }>('author')
+    .populate<{ author: User; label: Label }>(['author', 'label'])
     .select('-body')
     .lean()
     .then();
