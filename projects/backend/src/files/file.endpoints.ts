@@ -54,6 +54,8 @@ async function readFile(req: Request, res: Response): Promise<void> {
     throw new HttpError(404, 'Unknown endpoint.');
   }
 
+  console.log('Id', id);
+
   const info = await File.findById(new ObjectId(id))
     .select('mimeType data')
     .lean()
@@ -63,10 +65,12 @@ async function readFile(req: Request, res: Response): Promise<void> {
     throw new HttpError(404, `File '${id}' cannot be found.`);
   }
 
+  console.log('Sending file', id, 'mime type', info.mimeType);
+
   res.setHeader('Content-Type', info.mimeType);
 
   res.status(200);
-  res.send(info.data);
+  res.send(info.data.buffer);
 }
 
 async function listUserFiles(req: Request, res: Response): Promise<void> {
@@ -161,28 +165,28 @@ async function deleteFile(req: Request, res: Response): Promise<void> {
 }
 
 const jsonRoutes = Router();
-const jsonAuthenticatedRoutes = Router();
 
-jsonAuthenticatedRoutes.get('/', listUserFiles);
-jsonRoutes.get('/:id', readFile);
-jsonAuthenticatedRoutes.get('/:id/info', readFileInfo);
-jsonAuthenticatedRoutes.delete('/:id', deleteFile);
+jsonRoutes.get('/', listUserFiles);
+jsonRoutes.get('/:id/info', readFileInfo);
+jsonRoutes.delete('/:id', deleteFile);
 
-jsonAuthenticatedRoutes.use(createAuthMiddleware(PermissionLevel.WRITER));
+jsonRoutes.use(createAuthMiddleware(PermissionLevel.WRITER));
 
 jsonRoutes.use(json());
-jsonRoutes.use(jsonAuthenticatedRoutes);
-
-fileRouter.use(jsonRoutes);
 
 const binaryRoutes = Router();
+const binaryWriterRoutes = Router();
 
-binaryRoutes.patch('/:id', changeFile);
-binaryRoutes.post('/', createFile);
+binaryRoutes.get('/:id', readFile);
+binaryWriterRoutes.patch('/:id', changeFile);
+binaryWriterRoutes.post('/', createFile);
 
-binaryRoutes.use(createAuthMiddleware(PermissionLevel.WRITER));
+binaryWriterRoutes.use(createAuthMiddleware(PermissionLevel.WRITER));
+
 binaryRoutes.use(raw());
+binaryRoutes.use(binaryWriterRoutes);
 
 fileRouter.use(binaryRoutes);
+fileRouter.use(jsonRoutes);
 
 export { fileRouter };

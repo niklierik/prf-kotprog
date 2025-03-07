@@ -11,3 +11,13 @@ Az olvasók tudnak megjegyzéseket hagyni a cikkek alatt, illetve létezhetnek o
 
 Admin felhasználóknak van lehetőségük olvasókat íróvá léptetni, mások cikkeit is szerkeszteni, módosítani, törölni, illetve cikkek "tulajdonjogát" módosítani. Van lehetőségűk új cimkék létrehozására, illetve azok szerkesztésére.
 A szuperadmin is admin, azonban az ő felhasználója a rendszer létrejöttével létezik, és más adminok kijelölése a feladata ennek a felhasználónak.
+
+# Telepítés
+
+Az alkalmazás Dockerral indítható (Development build, tehát watchmode-ban):
+
+```bash
+docker compose up -d
+```
+
+Ezzel elindul minden szükséges service. Az nginx `81`-es portra van configolva, az alkalmazás a http://localhost:81 cím alatt érhető el. Az adatbázis seedelése is megtörténik, ezt a backend projektben található `.seeded-db` fájl létezése jelzi (ha ezt a fájlt kitöröljük, akkor indításkor az adatbázis újra seedelődik). Ez a folyamat képek letöltése miatt időbe telhet.

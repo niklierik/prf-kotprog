@@ -3,6 +3,7 @@ import { readFile } from 'fs/promises';
 export interface Config {
   app: {
     port: number;
+    url: string;
   };
   db: {
     url: string;

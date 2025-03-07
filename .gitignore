@@ -34,4 +34,9 @@ node_modules/
 
 projects/backend/env.json
 
+# Seed info
+
+**/seeded-users.txt
+**/.seeded-db
+
 mongo_data/
