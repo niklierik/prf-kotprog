@@ -9,6 +9,7 @@ export async function errorHandlerMiddleware(
   err: unknown,
   req: Request,
   res: Response,
+  _next: (...args: unknown[]) => unknown,
 ): Promise<void> {
   console.log('Error happened', err);
 
@@ -21,8 +22,9 @@ export async function errorHandlerMiddleware(
   }
 
   if (err instanceof MongoServerError) {
-    // duplicate key
-    if (err.code === 11000) {
+    const duplicateKeyErrorCode = 11000;
+
+    if (err.code === duplicateKeyErrorCode) {
       res.status(409);
       res.send({ message: err.message });
       return;
