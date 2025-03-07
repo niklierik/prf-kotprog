@@ -7,7 +7,11 @@ export const userSchema = new Schema(
     _id: { type: String, required: true },
     password: { type: String, required: true },
     name: { type: String, required: false },
-    profilePicture: { type: String, required: false },
+    profilePicture: {
+      type: Schema.Types.ObjectId,
+      ref: 'File',
+      required: false,
+    },
     permissionLevel: {
       type: Number,
       required: true,

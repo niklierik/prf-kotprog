@@ -1,13 +1,16 @@
 import { Request, Response, Router } from 'express';
-import { authMiddleware } from '../users/auth.middleware.js';
+import { createAuthMiddleware } from '../users/auth.middleware.js';
 import {
   createLabelRequestSchema,
   CreateLabelResponse,
   ListLabelsResponse,
 } from '@kotprog/common';
 import { Label } from './label.entity.js';
+import { PermissionLevel } from '../users/permission-level.js';
 
 const labelRouter = Router();
+const guestEndpoints = Router();
+const adminEndpoints = Router();
 
 async function createLabel(req: Request, res: Response): Promise<void> {
   const { name } = await createLabelRequestSchema.validate(req.body);
@@ -51,10 +54,13 @@ async function deleteLabel(req: Request, res: Response): Promise<void> {
   res.send();
 }
 
-labelRouter.post('/', createLabel);
-labelRouter.get('/', listLabels);
-labelRouter.patch('/:id', updateLabel);
-labelRouter.delete('/:id', deleteLabel);
-labelRouter.use(authMiddleware);
+adminEndpoints.post('/', createLabel);
+guestEndpoints.get('/', listLabels);
+adminEndpoints.patch('/:id', updateLabel);
+adminEndpoints.delete('/:id', deleteLabel);
+
+adminEndpoints.use(createAuthMiddleware(PermissionLevel.ADMIN));
+labelRouter.use(guestEndpoints);
+labelRouter.use(adminEndpoints);
 
 export { labelRouter };

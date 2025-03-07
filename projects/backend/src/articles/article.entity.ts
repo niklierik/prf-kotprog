@@ -7,15 +7,16 @@ export const commentSchema = new Schema(
   },
   { timestamps: true },
 );
+export interface Comment {
+  text: string;
+  author: string;
+}
+
+const discriminatorKey = 'type';
 
 export const articleSchema = new Schema(
   {
     title: {
-      type: String,
-      required: true,
-      default: '',
-    },
-    content: {
       type: String,
       required: true,
       default: '',
@@ -46,11 +47,51 @@ export const articleSchema = new Schema(
       },
     ],
   },
+  { discriminatorKey, timestamps: true },
+);
+
+export const Article = model('Article', articleSchema);
+
+export const openArticleSchema = new Schema(
   {
+    content: {
+      type: String,
+      required: true,
+      default: '',
+    },
+  },
+  {
+    discriminatorKey,
     timestamps: true,
   },
 );
-export const Article = model('Article', articleSchema);
-export type Article = InstanceType<typeof Article>;
+export const closedArticleSchema = new Schema(
+  {
+    openContent: {
+      type: String,
+      required: true,
+      default: '',
+    },
+    closedContent: {
+      type: String,
+      required: true,
+      default: '',
+    },
+  },
+  {
+    discriminatorKey,
+    timestamps: true,
+  },
+);
 
-export type Comment = Article['comments'];
+export const OpenArticle = Article.discriminator('open', openArticleSchema);
+export const ClosedArticle = Article.discriminator(
+  'closed',
+  closedArticleSchema,
+);
+
+export type OpenArticle = InstanceType<typeof OpenArticle> & { type: 'open' };
+export type ClosedArticle = InstanceType<typeof ClosedArticle> & {
+  type: 'closed';
+};
+export type Article = OpenArticle | ClosedArticle;

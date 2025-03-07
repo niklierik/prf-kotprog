@@ -1,5 +1,4 @@
 import { Request, Response, Router, json, raw } from 'express';
-import { authMiddleware } from '../users/auth.middleware.js';
 import { File } from './file.entity.js';
 import { ObjectId } from 'mongodb';
 import { HttpError } from '../errors/http-error.js';
@@ -10,6 +9,10 @@ import {
   ListUserFilesResponse,
   ReadFileInfoResponse,
 } from '@kotprog/common';
+import { UnauthenticatedError } from '../errors/unauthenticated-error.js';
+import { PermissionError } from '../errors/permission-error.js';
+import { createAuthMiddleware } from '../users/auth.middleware.js';
+import { PermissionLevel } from '../users/permission-level.js';
 
 const fileRouter = Router();
 
@@ -18,7 +21,7 @@ async function createFile(req: Request, res: Response): Promise<void> {
 
   const user = req.user?._id;
   if (!user) {
-    throw new HttpError(401, 'Unauthenticated request.');
+    throw new UnauthenticatedError();
   }
 
   const data = req.body;
@@ -69,12 +72,11 @@ async function readFile(req: Request, res: Response): Promise<void> {
 async function listUserFiles(req: Request, res: Response): Promise<void> {
   const { page, size } = await listUserFilesRequestSchema.validate(req.query);
 
-  const user = req.user?._id;
-  if (!user) {
-    throw new HttpError(401, 'Unauthenticated request.');
-  }
+  const user = req.user!._id;
 
-  const files = await File.find({})
+  const files = await File.find({
+    author: user,
+  })
     .select('-data')
     .skip(page * size)
     .limit(size)
@@ -129,12 +131,10 @@ async function changeFile(req: Request, res: Response): Promise<void> {
     throw new HttpError(404, `File '${id}' does not exist.`);
   }
 
-  if (!req.user) {
-    throw new HttpError(401, 'Unauthenticated request.');
-  }
+  const user = req.user!;
 
-  if (file.owner !== req.user._id || req.user.permissionLevel) {
-    throw new HttpError(403, `File cannot be modified or deleted by user.`);
+  if (file.owner !== user._id || user.permissionLevel) {
+    throw new PermissionError();
   }
 
   file.data = req.body;
@@ -151,7 +151,7 @@ async function deleteFile(req: Request, res: Response): Promise<void> {
   }
 
   if (file.owner !== req.user?._id) {
-    throw new HttpError(403, `File cannot be modified or deleted by user.`);
+    throw new PermissionError();
   }
 
   await file.deleteOne();
@@ -161,11 +161,17 @@ async function deleteFile(req: Request, res: Response): Promise<void> {
 }
 
 const jsonRoutes = Router();
-jsonRoutes.get('/', listUserFiles);
+const jsonAuthenticatedRoutes = Router();
+
+jsonAuthenticatedRoutes.get('/', listUserFiles);
 jsonRoutes.get('/:id', readFile);
-jsonRoutes.get('/:id/info', readFileInfo);
-jsonRoutes.delete('/:id', deleteFile);
+jsonAuthenticatedRoutes.get('/:id/info', readFileInfo);
+jsonAuthenticatedRoutes.delete('/:id', deleteFile);
+
+jsonAuthenticatedRoutes.use(createAuthMiddleware(PermissionLevel.WRITER));
+
 jsonRoutes.use(json());
+jsonRoutes.use(jsonAuthenticatedRoutes);
 
 fileRouter.use(jsonRoutes);
 
@@ -174,10 +180,9 @@ const binaryRoutes = Router();
 binaryRoutes.patch('/:id', changeFile);
 binaryRoutes.post('/', createFile);
 
+binaryRoutes.use(createAuthMiddleware(PermissionLevel.WRITER));
 binaryRoutes.use(raw());
 
 fileRouter.use(binaryRoutes);
-
-fileRouter.use(authMiddleware);
 
 export { fileRouter };

@@ -5,55 +5,74 @@ import { config } from '../config/config.js';
 import jwt from 'jsonwebtoken';
 import { TokenPayload } from '@kotprog/common';
 import { User } from './user.entity.js';
+import { PermissionLevel } from './permission-level.js';
+import { UnauthenticatedError } from '../errors/unauthenticated-error.js';
+import { PermissionError } from '../errors/permission-error.js';
 const { verify } = jwt;
 
-export async function authMiddleware(
+type Middleware = (
   req: Request,
   res: Response,
   next: (...args: unknown[]) => unknown,
-): Promise<void> {
-  try {
-    console.log('Entering auth middleware');
-    const { headers } = req;
-    const authHeader = headers['authorization'];
+) => Promise<void>;
 
-    const errorMessage = 'Failed to authenticate request.';
-
-    if (!authHeader) {
-      console.error('Authorization header is missing in request.');
-      throw new HttpError(401, errorMessage);
-    }
-
-    if (!authHeader.startsWith('Bearer ')) {
-      console.error('Authorization header does not start with Bearer.');
-      throw new HttpError(401, errorMessage);
-    }
-
-    const jwtToken = authHeader.substring('Bearer '.length);
-
+export function createAuthMiddleware(
+  minimumPermission: PermissionLevel,
+): Middleware {
+  return async (req, res, next) => {
     try {
-      const payload = verify(jwtToken, config.auth.secret, {}) as TokenPayload;
-      req.user = await User.findById(payload.email)
-        .select('-password')
-        .lean()
-        .then();
-    } catch {
-      throw new HttpError(401, errorMessage);
-    }
+      console.log('Entering auth middleware');
+      const { headers } = req;
+      const authHeader = headers['authorization'];
 
-    await next();
-  } catch (e) {
-    if (e instanceof HttpError) {
-      next(e);
-      return;
-    }
+      if (!authHeader) {
+        console.error('Authorization header is missing in request.');
+        throw new UnauthenticatedError();
+      }
 
-    console.error('Failed to authenticate request for unhandled reason.', e);
-    next(
-      new HttpError(
-        500,
-        'Failed to authenticate request because of unknown internal server error.',
-      ),
-    );
-  }
+      if (!authHeader.startsWith('Bearer ')) {
+        console.error('Authorization header does not start with Bearer.');
+        throw new UnauthenticatedError();
+      }
+
+      const jwtToken = authHeader.substring('Bearer '.length);
+
+      try {
+        const payload = verify(
+          jwtToken,
+          config.auth.secret,
+          {},
+        ) as TokenPayload;
+        req.user = await User.findById(payload.email)
+          .select('-password')
+          .lean()
+          .then();
+      } catch {
+        throw new UnauthenticatedError();
+      }
+
+      if (!req.user) {
+        throw new UnauthenticatedError();
+      }
+
+      if (req.user.permissionLevel < minimumPermission) {
+        throw new PermissionError();
+      }
+
+      await next();
+    } catch (e) {
+      if (e instanceof HttpError) {
+        next(e);
+        return;
+      }
+
+      console.error('Failed to authenticate request for unhandled reason.', e);
+      next(
+        new HttpError(
+          500,
+          'Failed to authenticate request because of unknown internal server error.',
+        ),
+      );
+    }
+  };
 }

@@ -11,9 +11,11 @@ import { compare, hash } from 'bcrypt';
 import { HttpError } from '../errors/http-error.js';
 import { config } from '../config/config.js';
 import type { StringValue } from 'ms';
-import { authMiddleware } from './auth.middleware.js';
+import { createAuthMiddleware } from './auth.middleware.js';
 
 import jwt from 'jsonwebtoken';
+import { PermissionLevel } from './permission-level.js';
+import { PermissionError } from '../errors/permission-error.js';
 const { sign } = jwt;
 
 async function register(req: Request, res: Response): Promise<void> {
@@ -63,6 +65,14 @@ async function login(req: Request, res: Response): Promise<void> {
 }
 
 async function checkLogin(req: Request, res: Response): Promise<void> {
+  const perm = Number(req.params['permission']) || 0;
+
+  const user = req.user!;
+
+  if (user.permissionLevel < perm) {
+    throw new PermissionError();
+  }
+
   res.status(200);
   res.send({});
 }
@@ -73,8 +83,9 @@ authRouter.post('/register', register);
 authRouter.post('/login', login);
 
 const checkLoginRouter = Router();
-checkLoginRouter.use(authMiddleware);
+checkLoginRouter.use(createAuthMiddleware(PermissionLevel.USER));
 checkLoginRouter.get('/', checkLogin);
+checkLoginRouter.get('/:permission', checkLogin);
 
 authRouter.use('/checklogin', checkLoginRouter);
 

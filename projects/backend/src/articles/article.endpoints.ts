@@ -1,6 +1,5 @@
 import { Request, Response, Router } from 'express';
-import { authMiddleware } from '../users/auth.middleware.js';
-import { Article } from './article.entity.js';
+import { Article, ClosedArticle, OpenArticle } from './article.entity.js';
 import {
   CreateArticleResponseData,
   listArticlesRequestSchema,
@@ -9,23 +8,39 @@ import {
 import { ObjectId } from 'mongodb';
 import { User } from '../users/user.entity.js';
 import { Label } from '../labels/label.entity.js';
+import { createAuthMiddleware } from '../users/auth.middleware.js';
+import { PermissionLevel } from '../users/permission-level.js';
+import { HttpError } from '../errors/http-error.js';
+import { PermissionError } from '../errors/permission-error.js';
 
 const articleRouter = Router();
+const openEndpoints = Router();
+const writerEndpoints = Router();
 
 async function createArticle(req: Request, res: Response): Promise<void> {
-  // const createArticleData = await createArticleRequestData.validate(req.body)  ;
+  const closed = Boolean(req.query['closed']);
 
-  const user = req.user!;
+  const author = req.user!._id;
 
-  const doc = await Article.create({
-    author: user._id,
-  });
+  let id: string;
+
+  if (closed) {
+    const article = await ClosedArticle.create({
+      author,
+    });
+    id = article._id.toHexString();
+  } else {
+    const article = await OpenArticle.create({
+      author,
+    });
+    id = article._id.toHexString();
+  }
 
   const response: CreateArticleResponseData = {
-    id: doc._id.toHexString(),
+    id,
   };
 
-  res.set({ Location: `/api/article/${doc._id}` });
+  res.set({ Location: `/api/article/${id}` });
 
   res.status(201);
   res.send(response);
@@ -67,23 +82,57 @@ async function getArticles(req: Request, res: Response): Promise<void> {
 }
 
 async function updateArticle(req: Request, res: Response): Promise<void> {
+  const id: string = req.params['id'];
+
+  const user = req.user!;
+
+  const article = await Article.findById(new ObjectId(id));
+
+  if (!article) {
+    throw new HttpError(404, `Article '${id}' cannot be found.`);
+  }
+
+  if (
+    user.permissionLevel < PermissionLevel.ADMIN &&
+    user._id !== article.author
+  ) {
+    throw new PermissionError();
+  }
+
   res.send(200);
 }
 
 async function deleteArticle(req: Request, res: Response): Promise<void> {
   const id: string = req.params['id'];
-  await Article.findByIdAndDelete(new ObjectId(id));
+
+  const user = req.user!;
+
+  const article = await Article.findById(new ObjectId(id));
+
+  if (!article) {
+    throw new HttpError(404, `Article '${id}' cannot be found.`);
+  }
+
+  if (
+    user.permissionLevel < PermissionLevel.ADMIN &&
+    user._id !== article.author
+  ) {
+    throw new PermissionError();
+  }
 
   res.status(200);
   res.send();
 }
 
-articleRouter.post('/', createArticle);
-articleRouter.get('/:id', getArticleById);
-articleRouter.get('/', getArticles);
-articleRouter.patch('/:id', updateArticle);
-articleRouter.delete('/', deleteArticle);
+writerEndpoints.post('/', createArticle);
+openEndpoints.get('/:id', getArticleById);
+openEndpoints.get('/', getArticles);
+writerEndpoints.patch('/:id', updateArticle);
+writerEndpoints.delete('/', deleteArticle);
 
-articleRouter.use(authMiddleware);
+articleRouter.use(openEndpoints);
+
+writerEndpoints.use(createAuthMiddleware(PermissionLevel.WRITER));
+articleRouter.use(writerEndpoints);
 
 export { articleRouter };
