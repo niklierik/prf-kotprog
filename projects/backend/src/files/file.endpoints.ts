@@ -1,7 +1,6 @@
 import { Request, Response, Router, json, raw } from 'express';
 import { File } from './file.entity.js';
 import { ObjectId } from 'mongodb';
-import { HttpError } from '../errors/http-error.js';
 import {
   createFileQuerySchema,
   CreateFileResponse,
@@ -13,6 +12,7 @@ import { UnauthenticatedError } from '../errors/unauthenticated-error.js';
 import { PermissionError } from '../errors/permission-error.js';
 import { createAuthMiddleware } from '../users/auth.middleware.js';
 import { PermissionLevel } from '../users/permission-level.js';
+import { NotFoundError } from '../errors/not-found-error.js';
 
 const fileRouter = Router();
 
@@ -50,9 +50,6 @@ async function createFile(req: Request, res: Response): Promise<void> {
 
 async function readFile(req: Request, res: Response): Promise<void> {
   const id: string | undefined = req.params['id'];
-  if (!id) {
-    throw new HttpError(404, 'Unknown endpoint.');
-  }
 
   console.log('Id', id);
 
@@ -62,7 +59,7 @@ async function readFile(req: Request, res: Response): Promise<void> {
     .then();
 
   if (!info) {
-    throw new HttpError(404, `File '${id}' cannot be found.`);
+    throw new NotFoundError(id, 'File');
   }
 
   console.log('Sending file', id, 'mime type', info.mimeType);
@@ -104,13 +101,10 @@ async function listUserFiles(req: Request, res: Response): Promise<void> {
 
 async function readFileInfo(req: Request, res: Response): Promise<void> {
   const id: string | undefined = req.params['id'];
-  if (!id) {
-    throw new HttpError(404, 'Unknown endpoint.');
-  }
 
   const info = await File.findById(new ObjectId(id)).select('-data').lean();
   if (!info) {
-    throw new HttpError(404, `File '${id}' cannot be found.`);
+    throw new NotFoundError(id, 'File');
   }
 
   const response: ReadFileInfoResponse = {
@@ -131,8 +125,9 @@ async function changeFile(req: Request, res: Response): Promise<void> {
   const id = req.params['id'];
 
   const file = await File.findById(new ObjectId(id));
+
   if (!file) {
-    throw new HttpError(404, `File '${id}' does not exist.`);
+    throw new NotFoundError(id, 'File');
   }
 
   const user = req.user!;
@@ -150,8 +145,9 @@ async function deleteFile(req: Request, res: Response): Promise<void> {
   const id = req.params['id'];
 
   const file = await File.findById(new ObjectId(id));
+
   if (!file) {
-    throw new HttpError(404, `File '${id}' does not exist.`);
+    throw new NotFoundError(id, 'File');
   }
 
   if (file.owner !== req.user?._id) {

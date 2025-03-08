@@ -1,4 +1,5 @@
 import { InferType, number, object } from 'yup';
+import { UserInfo } from '../auth/user-info.js';
 
 export const listArticlesRequestSchema = object({
   page: number().default(0),
@@ -11,11 +12,8 @@ export interface ListArticlesResponse {
 }
 
 export interface ListArticlesElement {
-  _id: string;
-  author: {
-    _id: string;
-    name: string;
-  };
+  id: string;
+  author: UserInfo;
   labels: string[];
   createdAt: string;
 }

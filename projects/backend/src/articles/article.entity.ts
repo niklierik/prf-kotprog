@@ -16,6 +16,10 @@ const discriminatorKey = 'type';
 
 export const articleSchema = new Schema(
   {
+    type: {
+      type: String,
+      required: true,
+    },
     title: {
       type: String,
       required: true,
@@ -94,4 +98,8 @@ export type OpenArticle = InstanceType<typeof OpenArticle> & { type: 'open' };
 export type ClosedArticle = InstanceType<typeof ClosedArticle> & {
   type: 'closed';
 };
-export type Article = OpenArticle | ClosedArticle;
+export type Article = (
+  | (OpenArticle & { type: 'open' })
+  | (ClosedArticle & { type: 'closed' })
+) &
+  InstanceType<typeof Article>;

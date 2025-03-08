@@ -25,11 +25,11 @@ if (seedNeeded) {
 
 // we don't want to use json() parser in every route, so we register the /api/file endpoint separately
 app.use('/api/file', fileRouter);
+app.use('/api/article', articleRouter);
 
 const apiRouter = Router();
 apiRouter.use('/auth', authRouter);
 apiRouter.use('/health', healthRouter);
-apiRouter.use('/article', articleRouter);
 apiRouter.use('/label', labelRouter);
 
 apiRouter.use(json());
