@@ -7,7 +7,6 @@ import moment from 'moment';
 })
 export class DistancePipe implements PipeTransform {
   public transform(value: unknown): string {
-    console.log(value);
     let date = value;
     if (typeof date === 'string' || typeof date === 'number') {
       date = new Date(date);
@@ -26,7 +25,7 @@ export class DistancePipe implements PipeTransform {
       }
 
       throw new Error(
-        `DatePipe only works with Date, number or string, provided value: ${date}`,
+        `DistancePipe only works with Date, number or string, provided value: ${date}`,
       );
     }
 

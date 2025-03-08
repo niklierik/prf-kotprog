@@ -51,8 +51,6 @@ async function createFile(req: Request, res: Response): Promise<void> {
 async function readFile(req: Request, res: Response): Promise<void> {
   const id: string | undefined = req.params['id'];
 
-  console.log('Id', id);
-
   const info = await File.findById(new ObjectId(id))
     .select('mimeType data')
     .lean()
@@ -61,8 +59,6 @@ async function readFile(req: Request, res: Response): Promise<void> {
   if (!info) {
     throw new NotFoundError(id, 'File');
   }
-
-  console.log('Sending file', id, 'mime type', info.mimeType);
 
   res.setHeader('Content-Type', info.mimeType);
 

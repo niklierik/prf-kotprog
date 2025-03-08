@@ -1,4 +1,4 @@
-import { faker, SexType } from '@faker-js/faker';
+import { faker } from '@faker-js/faker';
 import { User } from './users/user.entity.js';
 import { PermissionLevel } from './users/permission-level.js';
 import { File } from './files/file.entity.js';
@@ -69,7 +69,9 @@ export async function seedDb(): Promise<void> {
     data: ArrayBuffer;
     mimeType: string;
   }> {
-    const profilePic = await fetch(faker.image.urlPicsumPhotos());
+    const profilePic = await fetch(
+      faker.image.urlPicsumPhotos({ width: 640, height: 480 }),
+    );
     const data = Buffer.from(await profilePic.arrayBuffer());
     const mimeType = profilePic.headers.get('Content-Type') ?? 'image/png';
     return { data, mimeType };
@@ -170,7 +172,6 @@ export async function seedDb(): Promise<void> {
     return { url, name };
   }
 
-  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   async function generateArticleData() {
     const { _id } = faker.helpers.arrayElement(writers);
     const numberOfComments = faker.number.int({ min: 0, max: 3 });
@@ -208,6 +209,8 @@ export async function seedDb(): Promise<void> {
     const visible = faker.datatype.boolean(0.8);
     const articleLabels = faker.helpers.arrayElements(labels);
 
+    const views = faker.number.int({ min: 0, max: 500 });
+
     return {
       author: _id,
       title,
@@ -217,6 +220,7 @@ export async function seedDb(): Promise<void> {
       mainImage: url,
       createdAt,
       updatedAt,
+      views,
     };
   }
 

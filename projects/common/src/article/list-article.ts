@@ -1,22 +1,25 @@
-import { InferType, number, object } from 'yup';
+import { array, InferType, number, object, string } from 'yup';
 import { UserInfo } from '../auth/user-info.js';
+import { ArticleInfo } from './find-article.js';
 
 export const listArticlesRequestSchema = object({
   page: number().default(0),
   length: number().default(20),
+  labels: array()
+    .of(string().required().nonNullable())
+    .transform((value) => {
+      if (typeof value === 'string') {
+        return value.split(',');
+      }
+      return value;
+    })
+    .default([]),
+  author: string().optional().nullable(),
 });
 export type ListArticlesRequest = InferType<typeof listArticlesRequestSchema>;
 
 export interface ListArticlesResponse {
-  articles: ListArticlesElement[];
-}
-
-export interface ListArticlesElement {
-  id: string;
-  author: UserInfo;
-  labels: string[];
-  createdAt: string;
-  mainImage?: string;
+  articles: ArticleInfo[];
 }
 
 export interface ListCommentsResponse {

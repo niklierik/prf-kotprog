@@ -1,0 +1,5 @@
+<h2 class="title">Recommended articles</h2>
+
+@for (article of articles; track article.id) {
+  <app-article-box [article]="article" class="article"></app-article-box>
+}

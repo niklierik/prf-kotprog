@@ -1,5 +1,10 @@
 import { json, Request, Response, Router } from 'express';
-import { Article, ClosedArticle, OpenArticle } from './article.entity.js';
+import {
+  Article,
+  ClosedArticle,
+  getScoredArticleList,
+  OpenArticle,
+} from './article.entity.js';
 import {
   CreateArticleResponseData,
   ArticleInfo,
@@ -14,6 +19,13 @@ import { PermissionLevel } from '../users/permission-level.js';
 import { PermissionError } from '../errors/permission-error.js';
 import { NotFoundError } from '../errors/not-found-error.js';
 import { text } from 'express';
+import { PipelineStage, PopulatedDoc } from 'mongoose';
+
+export type ScoredArticle = Omit<Article, 'labels' | 'author'> & {
+  labels: Label[];
+  author: User;
+  score: number;
+};
 
 async function createArticle(req: Request, res: Response): Promise<void> {
   const closed = Boolean(req.query['closed']);
@@ -96,12 +108,17 @@ async function getArticleContentById(
 ): Promise<void> {
   const id: string = req.params['id'];
   const article = await Article.findById(new ObjectId(id))
-    .select('content openContent closedContent type')
-    .lean()
+    .select('content openContent closedContent type author')
     .then();
 
   if (!article) {
     throw new NotFoundError(id, 'Article');
+  }
+
+  if (article.author !== req.user?.id) {
+    let views = article.views || 0;
+    views++;
+    await article.updateOne({ views }, { timestamps: false });
   }
 
   let content = article['content'];
@@ -120,15 +137,16 @@ async function getArticleContentById(
 }
 
 async function getArticles(req: Request, res: Response): Promise<void> {
-  const { page, length } = await listArticlesRequestSchema.validate(req.query);
+  const { page, length, labels, author } =
+    await listArticlesRequestSchema.validate(req.query);
 
-  const articles = await Article.find({})
-    .skip(page * length)
-    .limit(length)
-    .populate<{ author: User; label: Label }>(['author', 'label'])
-    .select('-content -openContent -closedContent -comments')
-    .lean()
-    .then();
+  const articles = await getScoredArticleList({
+    user: req.user?._id,
+    author: author || undefined,
+    start: page * length,
+    limit: length,
+    labels,
+  });
 
   const response: ListArticlesResponse = {
     articles: articles.map((article) => ({
@@ -139,8 +157,17 @@ async function getArticles(req: Request, res: Response): Promise<void> {
         avatar: findAvatar(article.author),
       },
       createdAt: article.createdAt.toISOString(),
-      labels: article.labels.map((label) => label._id.toHexString()),
+      labels: article.labels.map((label) => ({
+        id: label._id.toHexString(),
+        name: label.name ?? '',
+        textColor: label.textColor ?? '',
+        backgroundColor: label.backgroundColor ?? '',
+      })),
       mainImage: article.mainImage || undefined,
+      title: article.title,
+      type: article.type,
+      updatedAt: article.updatedAt.toISOString(),
+      visible: article.visible,
     })),
   };
 

@@ -1,5 +1,9 @@
 import { Injectable } from '@angular/core';
-import { ArticleInfo } from '@kotprog/common';
+import {
+  ArticleInfo,
+  ListArticlesRequest,
+  ListArticlesResponse,
+} from '@kotprog/common';
 import { FetchService } from '../fetch.service';
 
 @Injectable({ providedIn: 'root' })
@@ -22,6 +26,33 @@ export class ArticleService {
       `/api/article/${id}/content`,
       {},
       (res) => res.text(),
+    );
+    return result;
+  }
+
+  public async findArticles({
+    labels,
+    length,
+    page,
+    author,
+  }: Partial<ListArticlesRequest>): Promise<ListArticlesResponse> {
+    const query = new URLSearchParams({});
+    if (author) {
+      query.append('author', author);
+    }
+    if (labels) {
+      query.append('labels', labels.join(','));
+    }
+    if (page) {
+      query.append('page', String(page));
+    }
+    if (length) {
+      query.append('length', String(length));
+    }
+
+    const result = await this.fetchService.fetch<ListArticlesResponse>(
+      `/api/article?${query}`,
+      { method: 'GET' },
     );
     return result;
   }

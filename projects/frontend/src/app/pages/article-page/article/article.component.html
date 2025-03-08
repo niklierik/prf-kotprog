@@ -1,40 +1,41 @@
-@if (title()) {
-  <h1>{{ title() }}</h1>
+@if (info.title) {
+  <h1 class="title">{{ info.title }}</h1>
 }
 
 <div>
   <div class="article-info">
-    @if (author()) {
-      <app-author [author]="author()!"></app-author>
+    @if (info.author) {
+      <app-author [author]="info.author"></app-author>
     }
-
-    @for (label of labels() ?? []; track label.id) {
-      <app-label [label]="label" class="label"> </app-label>
-    }
+    <div class="labels">
+      @for (label of info.labels; track label.id) {
+        <app-label [label]="label" class="label"> </app-label>
+      }
+    </div>
   </div>
 
-  @if (createdAt()) {
+  @if (info.createdAt) {
     <p class="date">
-      Written {{ createdAt() | distance }} ago ({{
-        createdAt() | date: 'medium'
+      Written {{ info.createdAt | distance }} ago ({{
+        info.createdAt | date: 'medium'
       }})
     </p>
   }
-  @if (updatedAt() && updatedAt() !== createdAt()) {
+  @if (info.updatedAt && info.updatedAt !== info.createdAt) {
     <p class="date">
-      Edited {{ createdAt() | distance }} ago ({{
-        updatedAt() | date: 'medium'
+      Edited {{ info.updatedAt | distance }} ago ({{
+        info.updatedAt | date: 'medium'
       }})
     </p>
   }
 </div>
 
-@if (mainImageUrl()) {
+@if (info.mainImage) {
   <div class="main-img-container">
-    <img [src]="mainImageUrl()" class="main-img" />
+    <img [src]="info.mainImage" class="main-img" />
   </div>
 }
 
 <div class="article-content">
-  <markdown [data]="data()"></markdown>
+  <markdown [data]="data"></markdown>
 </div>

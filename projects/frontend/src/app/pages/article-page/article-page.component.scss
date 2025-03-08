@@ -1,5 +1,5 @@
 .page {
-  width: 70%;
+  width: 80%;
   display: flex;
   flex-flow: row;
   justify-self: center;
@@ -7,12 +7,11 @@
 }
 
 .article {
-  width: 70%;
+  width: 60%;
   padding: 10px;
 }
 
-.space {
-  width: 30%;
+.article-suggestion {
+  width: 40%;
   padding: 10px;
-  background-color: #111;
 }

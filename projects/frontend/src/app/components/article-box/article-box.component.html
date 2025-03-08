@@ -1,0 +1,26 @@
+<button class="hidden" (click)="onClick()">
+  <div class="container">
+    @if (article.mainImage) {
+      <img [src]="article.mainImage" class="image" />
+    }
+
+    <div class="title-labels">
+      <p class="title">
+        {{ article.title }}
+        @if (locked) {
+          <mat-icon
+            fontIcon="lock_person"
+            aria-hidden="false"
+            aria-label="Locked"
+          >
+          </mat-icon>
+        }
+      </p>
+      <div class="labels">
+        @for (label of article.labels; track label.id) {
+          <app-label [label]="label"></app-label>
+        }
+      </div>
+    </div>
+  </div>
+</button>
