@@ -1,0 +1,18 @@
+.page {
+  width: 70%;
+  display: flex;
+  flex-flow: row;
+  justify-self: center;
+  justify-content: center;
+}
+
+.article {
+  width: 70%;
+  padding: 10px;
+}
+
+.space {
+  width: 30%;
+  padding: 10px;
+  background-color: #111;
+}

@@ -37,6 +37,8 @@ async function listLabels(req: Request, res: Response): Promise<void> {
     labels: labels.map((label) => ({
       id: label._id.toHexString(),
       name: label.name,
+      backgroundColor: label.backgroundColor,
+      textColor: label.textColor,
     })),
   };
 

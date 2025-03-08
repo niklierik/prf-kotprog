@@ -1,16 +1,14 @@
 import { UserInfo } from '../auth/user-info.js';
+import { Label } from '../label/label.model.js';
 
-export interface FindArticleResponse {
+export interface ArticleInfo {
   id: string;
   title: string;
   author: UserInfo;
   type: 'open' | 'closed';
   visible: boolean;
-  labels: LabelInfo[];
-}
-
-export interface LabelInfo {
-  id: string;
-  name: string;
-  color: string;
+  labels: Label[];
+  mainImage: string | undefined;
+  createdAt: string;
+  updatedAt: string;
 }

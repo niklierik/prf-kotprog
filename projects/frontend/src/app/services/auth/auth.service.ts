@@ -11,7 +11,7 @@ export class AuthService {
     private readonly authRequestService: AuthRequestService,
     private readonly authStorageService: AuthStorageService,
   ) {
-    authRequestService.checkLogin();
+    this.checkLogin();
   }
 
   public async login(
@@ -42,7 +42,10 @@ export class AuthService {
 
   public async checkLogin(): Promise<void> {
     try {
-      await this.authRequestService.checkLogin();
+      if (!this.isAuthenticated()) {
+        throw new Error('Unauthenticated check login request.');
+      }
+      await this.authRequestService.checkLogin(this.getAuthToken()!);
     } catch (e) {
       this.authStorageService.setAuthToken(undefined, true);
       console.warn('Failed to validate current auth token.', e);

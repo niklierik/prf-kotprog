@@ -20,7 +20,12 @@ export class AuthRequestService {
       },
       method: 'POST',
     });
-    const response: AuthLoginResponse = await result.json();
+
+    const response = await result.json();
+    if (result.status >= 400) {
+      throw new Error(response?.message);
+    }
+
     return response;
   }
 
@@ -35,11 +40,25 @@ export class AuthRequestService {
       method: 'POST',
     });
 
-    const response: AuthRegisterResponse = await result.json();
+    const response = await result.json();
+    if (result.status >= 400) {
+      throw new Error(response?.message);
+    }
+
     return response;
   }
 
-  public async checkLogin(): Promise<void> {
-    await fetch('/api/auth/checklogin', { method: 'GET' });
+  public async checkLogin(authToken: string): Promise<void> {
+    const result = await fetch('/api/auth/checklogin', {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+      },
+    });
+
+    if (result.status >= 400) {
+      const response = await result.json();
+      throw new Error(response?.message);
+    }
   }
 }

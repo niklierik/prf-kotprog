@@ -16,4 +16,13 @@ export interface ListArticlesElement {
   author: UserInfo;
   labels: string[];
   createdAt: string;
+  mainImage?: string;
+}
+
+export interface ListCommentsResponse {
+  comments: ListCommentElement[];
+}
+
+export interface ListCommentElement {
+  author: UserInfo;
 }

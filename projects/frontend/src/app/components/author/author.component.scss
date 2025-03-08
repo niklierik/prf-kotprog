@@ -1,0 +1,19 @@
+.author-info {
+  display: flex;
+  flex-flow: row;
+  color: white;
+  align-self: center;
+  justify-self: start;
+  padding: 5px;
+}
+
+.author-info img {
+  max-height: 48px;
+  border-radius: 50%;
+}
+
+.author-info p {
+  align-self: center;
+  margin: 5px;
+  font-size: larger;
+}

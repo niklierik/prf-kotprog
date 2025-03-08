@@ -1,4 +1,4 @@
-import { faker } from '@faker-js/faker';
+import { faker, SexType } from '@faker-js/faker';
 import { User } from './users/user.entity.js';
 import { PermissionLevel } from './users/permission-level.js';
 import { File } from './files/file.entity.js';
@@ -130,32 +130,78 @@ export async function seedDb(): Promise<void> {
 
   async function createLabels(): Promise<void> {
     for (const name of labelNames) {
-      const color = faker.color.rgb();
+      const color = faker.color.rgb({ prefix: '' });
+      const r = Number(`0x${color.substring(0, 2)}`);
+      const g = Number(`0x${color.substring(2, 4)}`);
+      const b = Number(`0x${color.substring(4, 6)}`);
+
+      let textColor = '#000000';
+
+      const brightness = r * 0.299 + g * 0.587 + b * 0.114;
+      if (brightness < 186) {
+        textColor = '#ffffff';
+      }
 
       const label = await Label.create({
         name,
-        color,
+        textColor,
+        backgroundColor: `#${color}`,
       });
       labels.push(label);
     }
   }
 
+  async function generateImage(
+    author: string,
+  ): Promise<{ url: string; name: string }> {
+    const { data, mimeType } = await getRandomImage();
+    const name = faker.lorem.sentence(2);
+
+    const { _id } = await File.create({
+      data,
+      mimeType,
+      name,
+      size: Buffer.byteLength(data),
+      owner: author,
+    });
+
+    const url = `${config.app.url}/api/file/${_id.toHexString()}`;
+
+    return { url, name };
+  }
+
   // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-  function generateArticleData() {
+  async function generateArticleData() {
     const { _id } = faker.helpers.arrayElement(writers);
     const numberOfComments = faker.number.int({ min: 0, max: 3 });
 
     const title = faker.lorem.sentence();
 
+    const { url } = await generateImage(_id);
+
     const comments: Comment[] = [];
+
+    const createdAt = faker.date.past();
+    let updatedAt = createdAt;
+
+    const to = new Date();
+
+    if (faker.datatype.boolean(0.1)) {
+      updatedAt = faker.date.between({ from: createdAt, to });
+    }
 
     for (let i = 0; i < numberOfComments; i++) {
       const { email } = faker.helpers.arrayElement(users);
       const text = faker.lorem.paragraph();
 
+      const commentCreatedAt = faker.date.between({ from: createdAt, to });
+      const commentUpdatedAt = createdAt;
+
       comments.push({
         author: email,
         text,
+        createdAt: commentCreatedAt,
+        updatedAt: commentUpdatedAt,
       });
     }
 
@@ -168,47 +214,36 @@ export async function seedDb(): Promise<void> {
       comments,
       visible,
       labels: articleLabels.map((l) => l._id),
+      mainImage: url,
+      createdAt,
+      updatedAt,
     };
   }
 
   async function generateArticleContent(
     author: string,
-    title: string | undefined,
     paragraphs: number = 10,
     imageChance: number = 0.2,
   ): Promise<string> {
     let content = '';
-    if (title) {
-      content += `# ${title}`;
-      content += EOL;
-      content += EOL;
-    }
 
     for (let paragraph = 0; paragraph < paragraphs; paragraph++) {
       const paragraphTitle = faker.lorem.sentence(3);
       content += `## ${paragraphTitle}`;
       content += EOL;
+      content += EOL;
       content += faker.lorem.paragraph({ min: 20, max: 40 });
       content += EOL;
+      content += EOL;
 
-      const generateImage = faker.datatype.boolean(imageChance);
+      const shouldGenImage = faker.datatype.boolean(imageChance);
 
-      if (generateImage) {
-        const { data, mimeType } = await getRandomImage();
-        const name = faker.lorem.sentence(2);
-
-        const { _id } = await File.create({
-          data,
-          mimeType,
-          name,
-          size: Buffer.byteLength(data),
-          owner: author,
-        });
-
-        const url = `${config.app.url}/api/file/${_id.toHexString()}`;
-
+      if (shouldGenImage) {
+        const { name, url } = await generateImage(author);
         content += `![${name}](${url} "${name}")`;
       }
+      content += EOL;
+      content += EOL;
       content += EOL;
     }
 
@@ -216,13 +251,9 @@ export async function seedDb(): Promise<void> {
   }
 
   async function createOpenArticle(): Promise<void> {
-    const articleData = generateArticleData();
+    const articleData = await generateArticleData();
 
-    const content = await generateArticleContent(
-      articleData.author,
-      articleData.title,
-      12,
-    );
+    const content = await generateArticleContent(articleData.author, 12);
 
     await OpenArticle.create({
       type: 'open',
@@ -232,13 +263,9 @@ export async function seedDb(): Promise<void> {
   }
 
   async function createClosedArticle(): Promise<void> {
-    const articleData = generateArticleData();
+    const articleData = await generateArticleData();
 
-    const openContent = await generateArticleContent(
-      articleData.author,
-      articleData.title,
-      3,
-    );
+    const openContent = await generateArticleContent(articleData.author, 3);
     const closedContent = await generateArticleContent(
       articleData.author,
       undefined,
@@ -254,13 +281,17 @@ export async function seedDb(): Promise<void> {
   }
 
   async function createArticles(): Promise<void> {
+    const promises: Promise<void>[] = [];
+
     for (let i = 0; i < numberOfOpenArticles; i++) {
-      await createOpenArticle();
+      promises.push(createOpenArticle());
     }
 
     for (let i = 0; i < numberOfClosedArticles; i++) {
-      await createClosedArticle();
+      promises.push(createClosedArticle());
     }
+
+    await Promise.all(promises);
   }
 
   console.log('Seeding DB');
@@ -272,6 +303,7 @@ export async function seedDb(): Promise<void> {
   await createLabels();
   console.log('Creating users');
   await createUsers();
+  console.log('Creating articles');
   await createArticles();
 
   // header

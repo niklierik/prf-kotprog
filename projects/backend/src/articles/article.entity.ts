@@ -10,6 +10,8 @@ export const commentSchema = new Schema(
 export interface Comment {
   text: string;
   author: string;
+  createdAt: Date | string;
+  updatedAt: Date | string;
 }
 
 const discriminatorKey = 'type';
@@ -50,6 +52,10 @@ export const articleSchema = new Schema(
         default: [],
       },
     ],
+    mainImage: {
+      type: String,
+      required: false,
+    },
   },
   { discriminatorKey, timestamps: true },
 );

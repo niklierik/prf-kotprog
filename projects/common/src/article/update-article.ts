@@ -1,23 +1,21 @@
-import { InferType, object, string } from 'yup';
+import { array, boolean, InferType, object, string } from 'yup';
 
 export const updateOpenArticleRequestSchema = object({
-  type: string().oneOf(['open']).required(),
+  mainImage: string().url().optional().nullable(),
+  title: string().optional(),
+  labels: array().of(string().required().nonNullable()).optional(),
+  visible: boolean().optional(),
+  author: string().optional(),
 });
-export const updateClosedArticleRequestSchema = object({
-  type: string().oneOf(['closed']).required(),
-});
+export const updateClosedArticleRequestSchema = object({});
 
 export type UpdateOpenArticleRequest = InferType<
   typeof updateOpenArticleRequestSchema
-> & {
-  type: 'open';
-};
+>;
 
 export type UpdateClosedArticleRequest = InferType<
   typeof updateClosedArticleRequestSchema
-> & {
-  type: 'closed';
-};
+>;
 
 export type UpdateArticleRequest =
   | UpdateOpenArticleRequest

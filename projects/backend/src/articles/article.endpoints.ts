@@ -1,13 +1,13 @@
-import { Request, Response, Router } from 'express';
+import { json, Request, Response, Router } from 'express';
 import { Article, ClosedArticle, OpenArticle } from './article.entity.js';
 import {
   CreateArticleResponseData,
-  FindArticleResponse,
+  ArticleInfo,
   listArticlesRequestSchema,
   ListArticlesResponse,
 } from '@kotprog/common';
 import { ObjectId } from 'mongodb';
-import { User } from '../users/user.entity.js';
+import { findAvatar, User } from '../users/user.entity.js';
 import { Label } from '../labels/label.entity.js';
 import { createAuthMiddleware } from '../users/auth.middleware.js';
 import { PermissionLevel } from '../users/permission-level.js';
@@ -51,30 +51,39 @@ async function getArticleById(req: Request, res: Response): Promise<void> {
     .lean()
     .then();
 
-  const user = req.user!;
+  const user = req.user;
 
   if (!article) {
     throw new NotFoundError(id, 'Article');
   }
 
-  if (!article.visible && user.permissionLevel < PermissionLevel.WRITER) {
+  if (
+    !article.visible &&
+    user &&
+    user.permissionLevel < PermissionLevel.WRITER
+  ) {
     throw new NotFoundError(id, 'Article');
   }
 
-  const response: FindArticleResponse = {
+  const response: ArticleInfo = {
     id: article._id.toHexString(),
     title: article.title,
     author: {
       id: article.author._id,
       name: article.author.name ?? '',
+      avatar: findAvatar(article.author),
     },
     labels: article.labels.map((label) => ({
       id: label._id.toHexString(),
-      color: label.color,
+      backgroundColor: label.backgroundColor,
       name: label.name,
+      textColor: label.textColor,
     })),
     type: article.type as 'open' | 'closed',
     visible: article.visible,
+    mainImage: article.mainImage || undefined,
+    createdAt: article.createdAt.toISOString(),
+    updatedAt: article.updatedAt.toISOString(),
   };
 
   res.status(200);
@@ -92,7 +101,7 @@ async function getArticleContentById(
     .then();
 
   if (!article) {
-    throw new NotFoundError(id, 'File');
+    throw new NotFoundError(id, 'Article');
   }
 
   let content = article['content'];
@@ -117,7 +126,7 @@ async function getArticles(req: Request, res: Response): Promise<void> {
     .skip(page * length)
     .limit(length)
     .populate<{ author: User; label: Label }>(['author', 'label'])
-    .select('-body')
+    .select('-content -openContent -closedContent -comments')
     .lean()
     .then();
 
@@ -127,9 +136,11 @@ async function getArticles(req: Request, res: Response): Promise<void> {
       author: {
         id: article.author._id,
         name: article.author.name ?? '',
+        avatar: findAvatar(article.author),
       },
       createdAt: article.createdAt.toISOString(),
       labels: article.labels.map((label) => label._id.toHexString()),
+      mainImage: article.mainImage || undefined,
     })),
   };
 
@@ -184,6 +195,7 @@ async function updateArticleContent(
 
   if (article.type === 'open') {
     article['content'] = req.body();
+    await article.save();
 
     res.status(200);
     res.send();
@@ -192,12 +204,16 @@ async function updateArticleContent(
 
   if (closed) {
     article['closedContent'] = req.body();
+    await article.save();
+
     res.status(200);
     res.send();
     return;
   }
 
   article['openContent'] = req.body();
+  await article.save();
+
   res.status(200);
   res.send();
 }
@@ -225,33 +241,33 @@ async function deleteArticle(req: Request, res: Response): Promise<void> {
 }
 
 const articleRouter = Router();
-const articleJsonRouter = Router();
-const openEndpoints = Router();
-const writerEndpoints = Router();
 
 const openTextEndpoints = Router();
-const closedTextEndpoints = Router();
+openTextEndpoints.get('/:id/content', getArticleContentById);
+openTextEndpoints.use(text());
+articleRouter.use(openTextEndpoints);
 
-writerEndpoints.post('/', createArticle);
+const articleJsonRouter = Router();
+const openEndpoints = Router();
 openEndpoints.get('/:id', getArticleById);
 openEndpoints.get('/', getArticles);
+articleJsonRouter.use(openEndpoints);
+
+const closedTextEndpoints = Router();
+closedTextEndpoints.patch('/:id/content', updateArticleContent);
+// closedTextEndpoints.use(createAuthMiddleware(PermissionLevel.WRITER));
+closedTextEndpoints.use(text());
+articleRouter.use(closedTextEndpoints);
+
+const writerEndpoints = Router();
+writerEndpoints.post('/', createArticle);
 writerEndpoints.patch('/:id', updateArticle);
 writerEndpoints.delete('/', deleteArticle);
 
-articleJsonRouter.use(openEndpoints);
-
 writerEndpoints.use(createAuthMiddleware(PermissionLevel.WRITER));
+
 articleJsonRouter.use(writerEndpoints);
-
-openTextEndpoints.get('/:id/content', getArticleContentById);
-openTextEndpoints.use(text());
-
-closedTextEndpoints.patch('/:id/content', updateArticleContent);
-closedTextEndpoints.use(text());
-closedTextEndpoints.use(createAuthMiddleware(PermissionLevel.WRITER));
-
-articleRouter.use(closedTextEndpoints);
-articleRouter.use(openTextEndpoints);
+articleJsonRouter.use(json());
 
 articleRouter.use(articleJsonRouter);
 

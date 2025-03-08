@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { HomeComponent } from './pages/home/home.component';
 import { LoginComponent } from './pages/login/login.component';
 import { RegisterComponent } from './pages/register/register.component';
-import { ArticleComponent } from './pages/article/article.component';
+import { ArticlePageComponent } from './pages/article-page/article-page.component';
 import { ComposeComponent } from './pages/compose/compose.component';
 import { AdminComponent } from './pages/admin/admin.component';
 import { authenticatedGuard } from './guards/authenticated.guard';
@@ -22,7 +22,7 @@ export const routes: Routes = [
   },
   {
     path: 'article/:id',
-    component: ArticleComponent,
+    component: ArticlePageComponent,
   },
   {
     path: 'compose',

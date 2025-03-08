@@ -1,0 +1,17 @@
+<button
+  type="button"
+  (click)="onClick()"
+  [ngStyle]="{
+    'background-color': label.backgroundColor,
+  }"
+  class="label hidden"
+>
+  <p
+    class="label-text"
+    [ngStyle]="{
+      color: label.textColor,
+    }"
+  >
+    #{{ label.name }}
+  </p>
+</button>

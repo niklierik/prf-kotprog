@@ -5,4 +5,6 @@ export interface ListLabelsResponse {
 export interface ListLabelElement {
   id: string;
   name: string;
+  backgroundColor: string;
+  textColor: string;
 }

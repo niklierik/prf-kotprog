@@ -10,18 +10,29 @@ export class FetchService {
   public async fetch<T>(
     url: string,
     requestInit: RequestInit = {},
+    responseHandler?: (response: Response) => T | Promise<T>,
   ): Promise<T> {
-    if (!this.authService.isAuthenticated()) {
-      throw new Error('Unauthorized.');
-    }
+    const authToken = this.authService.getAuthToken();
 
     requestInit.headers ??= {};
     requestInit.headers['Content-Type'] ??= 'application/json';
-    requestInit.headers['Authorization'] ??=
-      `Bearer ${this.authService.getAuthToken()}`;
 
-    const result = await fetch(url, requestInit);
+    if (authToken) {
+      requestInit.headers['Authorization'] ??= `Bearer ${authToken}`;
+    }
 
-    return await result.json();
+    const response = await fetch(url, requestInit);
+
+    if (response.status >= 400) {
+      const body = await response.json();
+      throw new Error(body?.messages);
+    }
+
+    if (responseHandler) {
+      return await responseHandler(response);
+    }
+
+    const body = await response.json();
+    return body;
   }
 }
