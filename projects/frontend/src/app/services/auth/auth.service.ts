@@ -1,7 +1,13 @@
-import { Injectable } from '@angular/core';
+import {
+  computed,
+  Injectable,
+  Signal,
+  signal,
+  WritableSignal,
+} from '@angular/core';
 import { AuthRequestService } from './auth-request.service';
 import { AuthStorageService } from './auth-storage.service';
-import { AuthRegisterRequest } from '@kotprog/common';
+import { AuthRegisterRequest, TokenPayload } from '@kotprog/common';
 
 @Injectable({
   providedIn: 'root',
@@ -45,22 +51,26 @@ export class AuthService {
       if (!this.isAuthenticated()) {
         throw new Error('Unauthenticated check login request.');
       }
-      await this.authRequestService.checkLogin(this.getAuthToken()!);
+      await this.authRequestService.checkLogin(this.authToken()!);
     } catch (e) {
       this.authStorageService.setAuthToken(undefined, true);
       console.warn('Failed to validate current auth token.', e);
     }
   }
 
-  public isAuthenticated(): boolean {
-    return this.authStorageService.getAuthToken() != undefined;
+  public get isAuthenticated(): Signal<boolean> {
+    return computed(() => Boolean(this.authToken()));
   }
 
-  public getAuthToken() {
-    return this.authStorageService.getAuthToken();
+  public get authToken(): Signal<string | undefined> {
+    return this.authStorageService.authToken;
   }
 
-  public getPayload() {
-    return this.authStorageService.getPayload();
+  public get payload(): Signal<TokenPayload | undefined> {
+    return this.authStorageService.payload;
+  }
+
+  public logout() {
+    this.authStorageService.logout();
   }
 }

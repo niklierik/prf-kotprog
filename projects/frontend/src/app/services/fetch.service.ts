@@ -12,7 +12,7 @@ export class FetchService {
     requestInit: RequestInit = {},
     responseHandler?: (response: Response) => T | Promise<T>,
   ): Promise<T> {
-    const authToken = this.authService.getAuthToken();
+    const authToken = this.authService.authToken();
 
     requestInit.headers ??= {};
     requestInit.headers['Content-Type'] ??= 'application/json';

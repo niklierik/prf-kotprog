@@ -1,10 +1,5 @@
-export interface ListLabelsResponse {
-  labels: ListLabelElement[];
-}
+import { Label } from './label.model.js';
 
-export interface ListLabelElement {
-  id: string;
-  name: string;
-  backgroundColor: string;
-  textColor: string;
+export interface ListLabelsResponse {
+  labels: Label[];
 }

@@ -19,7 +19,6 @@ import { PermissionLevel } from '../users/permission-level.js';
 import { PermissionError } from '../errors/permission-error.js';
 import { NotFoundError } from '../errors/not-found-error.js';
 import { text } from 'express';
-import { PipelineStage, PopulatedDoc } from 'mongoose';
 
 export type ScoredArticle = Omit<Article, 'labels' | 'author'> & {
   labels: Label[];

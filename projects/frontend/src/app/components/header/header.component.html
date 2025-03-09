@@ -1,0 +1,19 @@
+<div class="header">
+  <div class="left-side">
+    <a routerLink="/home">
+      <h1>Lorem Ipsum News</h1>
+    </a>
+  </div>
+  @for (label of labels.value() ?? []; track label.id) {
+    <app-label [label]="label"></app-label>
+  }
+  <div class="right-side">
+    @if (user()) {
+      <app-author [author]="user()!"></app-author>
+      <button mat-button (click)="logout()">Log out</button>
+    } @else {
+      <button mat-button routerLink="/login">Login</button>
+      <button mat-button routerLink="/register">Register</button>
+    }
+  </div>
+</div>

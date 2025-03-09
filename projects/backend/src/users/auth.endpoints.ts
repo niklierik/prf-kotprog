@@ -6,7 +6,7 @@ import {
   authLoginRequestSchema,
   authRegisterRequestSchema,
 } from '@kotprog/common';
-import { User } from './user.entity.js';
+import { findAvatar, User } from './user.entity.js';
 import { compare, hash } from 'bcrypt';
 import { HttpError } from '../errors/http-error.js';
 import { config } from '../config/config.js';
@@ -53,7 +53,11 @@ async function login(req: Request, res: Response): Promise<void> {
     throw new HttpError(401, 'Invalid credentials.');
   }
 
-  const payload: TokenPayload = { email };
+  const payload: TokenPayload = {
+    email,
+    name: user.name || '',
+    avatar: findAvatar(user),
+  };
 
   const jwt = sign(payload, config.auth.secret, {
     expiresIn: config.auth.tokenExpiresIn as StringValue,

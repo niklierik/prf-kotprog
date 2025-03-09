@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal, Signal, WritableSignal } from '@angular/core';
 import { TokenPayload } from '@kotprog/common';
 import { jwtDecode } from 'jwt-decode';
 
@@ -6,8 +6,10 @@ import { jwtDecode } from 'jwt-decode';
   providedIn: 'root',
 })
 export class AuthStorageService {
-  private authToken: string | undefined;
-  private payload: TokenPayload | undefined;
+  public readonly authToken: WritableSignal<string | undefined> =
+    signal(undefined);
+  public readonly payload: WritableSignal<TokenPayload | undefined> =
+    signal(undefined);
   private readonly localStorageKey: string = 'auth-token';
 
   public constructor() {
@@ -15,18 +17,10 @@ export class AuthStorageService {
     this.setAuthToken(authToken ?? undefined, true);
   }
 
-  public getAuthToken(): string | undefined {
-    return this.authToken;
-  }
-
-  public getPayload(): TokenPayload | undefined {
-    return this.payload;
-  }
-
   public setAuthToken(authToken: string | undefined, storeLogin: boolean) {
-    this.authToken = authToken;
+    this.authToken.set(authToken);
     if (!authToken) {
-      this.payload = undefined;
+      this.payload.set(undefined);
       localStorage.removeItem(this.localStorageKey);
       return;
     }
@@ -35,6 +29,10 @@ export class AuthStorageService {
       localStorage.setItem(this.localStorageKey, authToken);
     }
 
-    this.payload = jwtDecode(authToken, { header: true });
+    this.payload.set(jwtDecode(authToken, { header: true }));
+  }
+
+  public logout(): void {
+    this.setAuthToken(undefined, true);
   }
 }
