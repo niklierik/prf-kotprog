@@ -242,7 +242,7 @@ export async function seedDb(): Promise<void> {
 
       const shouldGenImage = faker.datatype.boolean(imageChance);
 
-      if (shouldGenImage) {
+      if (shouldGenImage && paragraph < paragraphs - 1) {
         const { name, url } = await generateImage(author);
         content += `![${name}](${url} "${name}")`;
       }

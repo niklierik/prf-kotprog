@@ -13,8 +13,57 @@
   margin-right: auto;
 }
 
-div.article-content {
+.article-container {
+  display: flex;
+  flex-flow: column;
+  align-items: stretch;
   padding-right: 50px;
+}
+
+.article-content {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.login-box {
+  padding-top: 100px;
+  padding-bottom: 0px;
+  display: flex;
+  flex-flow: column;
+
+  z-index: 10;
+
+  margin-top: -200px;
+
+  .fade-effect {
+    background-image: linear-gradient(#0000, #666);
+    height: 100px;
+  }
+
+  .login-text {
+    padding: 30px;
+    background-color: #666;
+  }
+
+  p {
+    &.title {
+      font-size: x-large;
+    }
+
+    margin: 5px;
+  }
+
+  a,
+  a:any-link {
+    color: #ccc;
+    text-decoration: none;
+
+    &:hover,
+    &:active,
+    &:focus {
+      color: #eee;
+    }
+  }
 }
 
 h1.title {

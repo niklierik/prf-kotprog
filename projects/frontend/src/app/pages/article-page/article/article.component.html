@@ -36,6 +36,21 @@
   </div>
 }
 
-<div class="article-content">
-  <markdown [data]="data"></markdown>
+<div class="article-container">
+  <div class="article-content">
+    <markdown [data]="data"></markdown>
+  </div>
+
+  @if (locked) {
+    <div class="login-box">
+      <div class="fade-effect"></div>
+      <div class="login-text">
+        <p class="title">Do you like this article so far?</p>
+        <p>
+          Please <a routerLink="/register">register</a> or
+          <a routerLink="/login">log in</a> to continue reading it.
+        </p>
+      </div>
+    </div>
+  }
 </div>
