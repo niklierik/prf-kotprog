@@ -15,6 +15,7 @@ import { ArticleComponent } from './article/article.component';
 import { ArticleSuggestionComponent } from './article-suggestion/article-suggestion.component';
 import { Title } from '@angular/platform-browser';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { ArticlePageResources } from './article-page.resources';
 
 @Component({
   selector: 'app-article-page',
@@ -29,18 +30,15 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 export class ArticlePageComponent {
   public readonly articleId: Signal<string | undefined>;
 
-  public readonly dataResource: Resource<string | undefined>;
-  public readonly infoResource: Resource<ArticleInfo | undefined>;
-  public readonly data: Signal<string | undefined>;
+  public readonly data: Resource<string | undefined>;
 
-  public readonly info: Signal<ArticleInfo | undefined>;
+  public readonly info: Resource<ArticleInfo | undefined>;
 
-  public readonly articlesResource: Resource<ListArticlesResponse | undefined>;
-  public readonly articles: Signal<ArticleInfo[]>;
+  public readonly articles: Resource<ArticleInfo[] | undefined>;
 
   public constructor(
     activatedRoute: ActivatedRoute,
-    articleService: ArticleService,
+    articlePageResources: ArticlePageResources,
     router: Router,
     titleService: Title,
   ) {
@@ -51,60 +49,14 @@ export class ArticlePageComponent {
       initialValue: undefined,
     });
 
-    this.dataResource = resource({
-      loader: async ({ request }) => {
-        const { id } = request;
-
-        if (!id) {
-          return undefined;
-        }
-
-        const data = await articleService.getContentById(id);
-        return data;
-      },
-      request: () => ({ id: this.articleId() }),
-    });
-
-    this.infoResource = resource({
-      loader: async ({ request }) => {
-        const { id } = request;
-
-        if (!id) {
-          return undefined;
-        }
-
-        const data = await articleService.getArticleById(id);
-        return data;
-      },
-      request: () => ({ id: this.articleId() }),
-    });
-
-    this.data = computed(() => this.dataResource.value());
-
-    this.info = computed(() => this.infoResource.value());
-
-    this.articlesResource = resource({
-      loader: async ({ request }) => {
-        const { info } = request;
-
-        if (!info) {
-          return { articles: [] };
-        }
-
-        return await articleService.findArticles({
-          labels: info?.labels.map((label) => label.id),
-          length: 10,
-        });
-      },
-      request: () => ({ info: this.info() }),
-    });
-
-    this.articles = computed(
-      () => this.articlesResource.value()?.articles || [],
+    this.info = articlePageResources.createInfo(this.articleId);
+    this.data = articlePageResources.createDataSignal(this.articleId);
+    this.articles = articlePageResources.createArticleSuggestionsSignal(
+      this.info.value,
     );
 
     effect(() => {
-      const title = this.info()?.title;
+      const title = this.info.value()?.title;
       if (!title) {
         titleService.setTitle('Lorem Ipsum News');
         return;
@@ -113,12 +65,12 @@ export class ArticlePageComponent {
     });
 
     effect(() => {
-      const dataError = this.dataResource.error();
+      const dataError = this.data.error();
       if (dataError) {
         console.error("Failed to download article's data.", dataError);
       }
 
-      const infoError = this.infoResource.error();
+      const infoError = this.info.error();
       if (infoError) {
         console.error("Failed to download article's info.", infoError);
       }

@@ -1,10 +1,13 @@
 <main class="page">
-  @if (dataResource.isLoading() && infoResource.isLoading()) {
+  @if (data.isLoading() && info.isLoading()) {
     <mat-progress-spinner></mat-progress-spinner>
-  } @else if (data() && info()) {
-    <app-article class="article" [data]="data()!" [info]="info()!">
+  } @else if (data.value() && info.value()) {
+    <app-article class="article" [data]="data.value()!" [info]="info.value()!">
     </app-article>
-    <app-article-suggestion class="article-suggestion" [articles]="articles()">
+    <app-article-suggestion
+      class="article-suggestion"
+      [articles]="articles.value() ?? []"
+    >
     </app-article-suggestion>
   }
 </main>
