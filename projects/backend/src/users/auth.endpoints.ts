@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+import { Router, Request, Response, json } from 'express';
 import {
   AuthLoginResponse,
   AuthRegisterResponse,
@@ -40,6 +40,8 @@ async function register(req: Request, res: Response): Promise<void> {
 }
 
 async function login(req: Request, res: Response): Promise<void> {
+  console.log(req.body);
+
   const { email, password } = await authLoginRequestSchema.validate(req.body);
 
   const user = await User.findById(email);

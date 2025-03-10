@@ -158,15 +158,18 @@ async function deleteFile(req: Request, res: Response): Promise<void> {
 
 const jsonRoutes = Router();
 
+jsonRoutes.use(json());
+
 jsonRoutes.get('/', listUserFiles);
 jsonRoutes.get('/:id/info', readFileInfo);
 jsonRoutes.delete('/:id', deleteFile);
 
 jsonRoutes.use(createAuthMiddleware(PermissionLevel.WRITER));
 
-jsonRoutes.use(json());
-
 const binaryRoutes = Router();
+
+binaryRoutes.use(raw());
+
 const binaryWriterRoutes = Router();
 
 binaryRoutes.get('/:id', readFile);
@@ -175,7 +178,6 @@ binaryWriterRoutes.post('/', createFile);
 
 binaryWriterRoutes.use(createAuthMiddleware(PermissionLevel.WRITER));
 
-binaryRoutes.use(raw());
 binaryRoutes.use(binaryWriterRoutes);
 
 fileRouter.use(binaryRoutes);

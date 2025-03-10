@@ -28,11 +28,12 @@ app.use('/api/file', fileRouter);
 app.use('/api/article', articleRouter);
 
 const apiRouter = Router();
+
+apiRouter.use(json());
+
 apiRouter.use('/auth', authRouter);
 apiRouter.use('/health', healthRouter);
 apiRouter.use('/label', labelRouter);
-
-apiRouter.use(json());
 
 app.use('/api', apiRouter);
 

@@ -269,20 +269,24 @@ async function deleteArticle(req: Request, res: Response): Promise<void> {
 const articleRouter = Router();
 
 const openTextEndpoints = Router();
-openTextEndpoints.get('/:id/content', getArticleContentById);
 openTextEndpoints.use(text());
+
+openTextEndpoints.get('/:id/content', getArticleContentById);
 articleRouter.use(openTextEndpoints);
 
 const articleJsonRouter = Router();
+articleJsonRouter.use(json());
+
 const openEndpoints = Router();
 openEndpoints.get('/:id', getArticleById);
 openEndpoints.get('/', getArticles);
 articleJsonRouter.use(openEndpoints);
 
 const closedTextEndpoints = Router();
+closedTextEndpoints.use(text());
+
 closedTextEndpoints.patch('/:id/content', updateArticleContent);
 // closedTextEndpoints.use(createAuthMiddleware(PermissionLevel.WRITER));
-closedTextEndpoints.use(text());
 articleRouter.use(closedTextEndpoints);
 
 const writerEndpoints = Router();
@@ -293,7 +297,6 @@ writerEndpoints.delete('/', deleteArticle);
 writerEndpoints.use(createAuthMiddleware(PermissionLevel.WRITER));
 
 articleJsonRouter.use(writerEndpoints);
-articleJsonRouter.use(json());
 
 articleRouter.use(articleJsonRouter);
 
