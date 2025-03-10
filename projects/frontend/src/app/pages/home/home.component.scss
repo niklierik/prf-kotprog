@@ -1,0 +1,51 @@
+.main-article-container {
+  width: 100%;
+  display: flex;
+}
+
+.main-article {
+  display: flex;
+  justify-self: center;
+  align-items: center;
+  color: white;
+
+  padding: 25px;
+  max-width: 60%;
+
+  img {
+    height: 256px;
+    border-radius: 25px;
+  }
+
+  h2 {
+    text-align: left;
+  }
+
+  .content {
+    display: flex;
+    flex-flow: column;
+    flex-wrap: nowrap;
+
+    text-align: left;
+    padding: 15px;
+  }
+
+  .labels-author {
+    display: flex;
+    flex-flow: row;
+    flex-wrap: wrap;
+    flex-basis: 0px;
+
+    align-items: center;
+  }
+}
+
+.columns {
+  display: flex;
+  flex-flow: row;
+}
+
+.column {
+  display: flex;
+  flex-flow: column;
+}

@@ -1,0 +1,37 @@
+<div class="main-article-container">
+  <button class="hidden" [routerLink]="'/article/' + mainArticle()!.id">
+    @if (mainArticle()) {
+      <div class="main-article">
+        <img [src]="mainArticle()!.mainImage" />
+        <div class="content">
+          <h1>{{ mainArticle()!.title }}</h1>
+          <div class="labels-author">
+            <app-author [author]="mainArticle()!.author"> </app-author>
+            @for (label of mainArticle()!.labels; track label.id) {
+              <app-label [label]="label"></app-label>
+            }
+          </div>
+          <markdown [data]="mainData()"></markdown>
+        </div>
+      </div>
+    }
+  </button>
+</div>
+
+<div class="columns">
+  <div class="column column-1">
+    @for (article of column1(); track article.id) {
+      <app-article-box [article]="article"></app-article-box>
+    }
+  </div>
+  <div class="column column-2">
+    @for (article of column2(); track article.id) {
+      <app-article-box [article]="article"></app-article-box>
+    }
+  </div>
+  <div class="column column-3">
+    @for (article of column3(); track article.id) {
+      <app-article-box [article]="article"></app-article-box>
+    }
+  </div>
+</div>
