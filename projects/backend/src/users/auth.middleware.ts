@@ -21,7 +21,6 @@ export function createAuthMiddleware(
 ): Middleware {
   return async (req, res, next) => {
     try {
-      console.log('Entering auth middleware');
       const { headers } = req;
       const authHeader = headers['authorization'];
 
