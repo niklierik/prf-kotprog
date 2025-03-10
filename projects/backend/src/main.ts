@@ -16,12 +16,12 @@ await connectToDb();
 
 const app = express();
 
-await seedSuperAdmin();
-
 const seedNeeded = await shouldSeedDb();
 if (seedNeeded) {
   seedDb().catch((e) => console.error('Failed to seed DB.', e));
 }
+
+await seedSuperAdmin();
 
 // we don't want to use json() parser in every route, so we register the /api/file endpoint separately
 app.use('/api/file', fileRouter);

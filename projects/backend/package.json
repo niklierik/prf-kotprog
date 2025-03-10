@@ -45,7 +45,7 @@
   "license": "UNLICENSED",
   "dependencies": {
     "@kotprog/common": "*",
-    "bcrypt": "^5.1.1",
+    "bcryptjs": "^3.0.2",
     "express": "^5.0.1",
     "jsonwebtoken": "^9.0.2",
     "lodash": "^4.17.21",

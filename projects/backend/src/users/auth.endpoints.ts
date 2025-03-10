@@ -7,7 +7,7 @@ import {
   authRegisterRequestSchema,
 } from '@kotprog/common';
 import { findAvatar, User } from './user.entity.js';
-import { compare, hash } from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { HttpError } from '../errors/http-error.js';
 import { config } from '../config/config.js';
 import type { StringValue } from 'ms';
@@ -23,13 +23,12 @@ async function register(req: Request, res: Response): Promise<void> {
     req.body ?? {},
   );
 
-  const passwordHashed = await hash(password, config.auth.salt);
+  const passwordHashed = await bcrypt.hash(password, config.auth.salt);
 
-  const user = new User({
+  const user = await User.create({
     _id: email,
     password: passwordHashed,
   });
-  await user.save();
 
   const response: AuthRegisterResponse = {
     email: user._id,
@@ -40,8 +39,6 @@ async function register(req: Request, res: Response): Promise<void> {
 }
 
 async function login(req: Request, res: Response): Promise<void> {
-  console.log(req.body);
-
   const { email, password } = await authLoginRequestSchema.validate(req.body);
 
   const user = await User.findById(email);
@@ -49,7 +46,7 @@ async function login(req: Request, res: Response): Promise<void> {
     throw new HttpError(401, 'Invalid credentials.');
   }
 
-  const passwordValid = await compare(password, user.password);
+  const passwordValid = await bcrypt.compare(password, user.password);
 
   if (!passwordValid) {
     throw new HttpError(401, 'Invalid credentials.');

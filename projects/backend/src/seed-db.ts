@@ -14,6 +14,7 @@ import {
 import { env } from 'process';
 import { existsSync } from 'fs';
 import { config } from './config/config.js';
+import bcrypt from 'bcryptjs';
 
 export async function shouldSeedDb(): Promise<boolean> {
   if (env['NODE_ENV'] === 'production') {
@@ -92,6 +93,7 @@ export async function seedDb(): Promise<void> {
 
     const email = faker.internet.email({ firstName, lastName });
     const password = faker.internet.password({ memorable: true });
+    const passwordHashed = await bcrypt.hash(password, config.auth.salt);
 
     const { data, mimeType } = await getAvatar();
 
@@ -105,7 +107,7 @@ export async function seedDb(): Promise<void> {
 
     const user = await User.create({
       _id: email,
-      password,
+      password: passwordHashed,
       name,
       permissionLevel,
       profilePicture: profilePic._id,
@@ -285,17 +287,17 @@ export async function seedDb(): Promise<void> {
   }
 
   async function createArticles(): Promise<void> {
-    const promises: Promise<void>[] = [];
+    // const promises: Promise<void>[] = [];
 
     for (let i = 0; i < numberOfOpenArticles; i++) {
-      promises.push(createOpenArticle());
+      await createOpenArticle();
+      //  promises.push(createOpenArticle());
     }
 
     for (let i = 0; i < numberOfClosedArticles; i++) {
-      promises.push(createClosedArticle());
+      await createClosedArticle();
+      //  promises.push(createClosedArticle());
     }
-
-    await Promise.all(promises);
   }
 
   console.log('Seeding DB');

@@ -1,6 +1,7 @@
 import { Schema, model } from 'mongoose';
 import { config } from '../config/config.js';
 import { PermissionLevel } from './permission-level.js';
+import bcrypt from 'bcryptjs';
 
 export const userSchema = new Schema(
   {
@@ -27,19 +28,26 @@ export const User = model('User', userSchema);
 export type User = InstanceType<typeof User>;
 
 export async function seedSuperAdmin(): Promise<void> {
-  const { username, password } = config.auth.superadmin;
+  try {
+    const { username, password } = config.auth.superadmin;
 
-  const user = await User.findById(username).lean().then();
-  if (user) {
-    return;
+    const user = await User.findById(username).lean().then();
+    if (user) {
+      return;
+    }
+
+    const passwordHashed = await bcrypt.hash(password, config.auth.salt);
+
+    await User.create({
+      _id: username,
+      name: 'Super Admin',
+      password: passwordHashed,
+      permissionLevel: PermissionLevel.SUPERADMIN,
+    });
+  } catch (e) {
+    console.error(e);
+    throw e;
   }
-
-  await User.create({
-    _id: username,
-    name: 'Super Admin',
-    password,
-    permissionLevel: PermissionLevel.SUPERADMIN,
-  });
 }
 
 export function findAvatar(
