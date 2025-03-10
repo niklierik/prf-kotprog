@@ -22,8 +22,6 @@ import { LabelComponent } from '../label/label.component';
   styleUrl: './header.component.scss',
 })
 export class HeaderComponent {
-  public readonly isAuthenticated: Signal<boolean>;
-
   public readonly user: Signal<Author | undefined>;
 
   public readonly labels: Resource<Label[] | undefined>;
@@ -32,10 +30,10 @@ export class HeaderComponent {
     private readonly authService: AuthService,
     labelService: LabelService,
   ) {
-    this.isAuthenticated = authService.isAuthenticated;
-
     this.user = computed(() => {
       const payload = authService.payload();
+
+      console.log(payload);
       if (!payload?.email) {
         return undefined;
       }

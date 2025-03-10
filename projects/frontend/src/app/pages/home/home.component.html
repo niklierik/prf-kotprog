@@ -1,6 +1,6 @@
 <div class="main-article-container">
-  <button class="hidden" [routerLink]="'/article/' + mainArticle()!.id">
-    @if (mainArticle()) {
+  @if (mainArticle()) {
+    <button class="hidden" [routerLink]="'/article/' + mainArticle()!.id">
       <div class="main-article">
         <img [src]="mainArticle()!.mainImage" />
         <div class="content">
@@ -14,8 +14,8 @@
           <markdown [data]="mainData()"></markdown>
         </div>
       </div>
-    }
-  </button>
+    </button>
+  }
 </div>
 
 <div class="columns">

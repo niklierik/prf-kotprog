@@ -1,7 +1,7 @@
 import { InferType, object, string } from 'yup';
 
 export const authLoginRequestSchema = object({
-  email: string().required().email(),
+  email: string().required(),
   password: string().required(),
 });
 

@@ -29,7 +29,7 @@ export class AuthStorageService {
       localStorage.setItem(this.localStorageKey, authToken);
     }
 
-    this.payload.set(jwtDecode(authToken, { header: true }));
+    this.payload.set(jwtDecode(authToken));
   }
 
   public logout(): void {
