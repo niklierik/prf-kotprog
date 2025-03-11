@@ -15,11 +15,13 @@ export const listArticlesRequestSchema = object({
     })
     .default([]),
   author: string().optional().nullable(),
+  randomization: number().default(1),
 });
 export type ListArticlesRequest = InferType<typeof listArticlesRequestSchema>;
 
 export interface ListArticlesResponse {
   articles: ArticleInfo[];
+  count: number;
 }
 
 export interface ListCommentsResponse {

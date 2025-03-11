@@ -32,6 +32,9 @@ services:
   backend:
     build: ./projects/backend
     restart: always
+    ports:
+      - 3000:3000
+      - 9229:9229
     volumes:
       - "projects_volume:/home/node/app"
     environment:

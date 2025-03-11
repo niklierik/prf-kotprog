@@ -2,6 +2,7 @@ import { json, Request, Response, Router } from 'express';
 import {
   Article,
   ClosedArticle,
+  getArticlesCount,
   getScoredArticleList,
   OpenArticle,
 } from './article.entity.js';
@@ -136,7 +137,7 @@ async function getArticleContentById(
 }
 
 async function getArticles(req: Request, res: Response): Promise<void> {
-  const { page, length, labels, author } =
+  const { page, length, labels, author, randomization } =
     await listArticlesRequestSchema.validate(req.query);
 
   const articles = await getScoredArticleList({
@@ -145,7 +146,10 @@ async function getArticles(req: Request, res: Response): Promise<void> {
     start: page * length,
     limit: length,
     labels,
+    randomModifier: randomization,
   });
+
+  const count = await getArticlesCount({ labels, author: author || undefined });
 
   const response: ListArticlesResponse = {
     articles: articles.map((article) => ({
@@ -168,6 +172,7 @@ async function getArticles(req: Request, res: Response): Promise<void> {
       updatedAt: article.updatedAt.toISOString(),
       visible: article.visible,
     })),
+    count,
   };
 
   res.status(200);

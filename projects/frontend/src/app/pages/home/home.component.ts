@@ -1,11 +1,11 @@
 import { Component, computed, Signal } from '@angular/core';
 import { ArticleInfo } from '@kotprog/common';
-import { HomePageResources } from './home-page.resources';
 import { ArticleBoxComponent } from '../../components/article-box/article-box.component';
 import { RouterModule } from '@angular/router';
 import { LabelComponent } from '../../components/label/label.component';
 import { AuthorComponent } from '../../components/author/author.component';
 import { MarkdownModule } from 'ngx-markdown';
+import { ArticleService } from '../../services/article/article.service';
 
 @Component({
   selector: 'app-home',
@@ -26,8 +26,8 @@ export class HomeComponent {
   public readonly column2: Signal<ArticleInfo[]>;
   public readonly column3: Signal<ArticleInfo[]>;
 
-  public constructor(homePageResources: HomePageResources) {
-    const articles = homePageResources.createArticleSuggestions();
+  public constructor(articleService: ArticleService) {
+    const articles = articleService.createArticleSuggestions({});
 
     this.mainArticle = computed(() => articles.value()?.main);
     this.mainData = computed(() => articles.value()?.mainData);

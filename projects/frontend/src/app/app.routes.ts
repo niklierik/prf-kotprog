@@ -6,6 +6,7 @@ import { ArticlePageComponent } from './pages/article-page/article-page.componen
 import { ComposeComponent } from './pages/compose/compose.component';
 import { AdminComponent } from './pages/admin/admin.component';
 import { authenticatedGuard } from './guards/authenticated.guard';
+import { ArticleListPageComponent } from './pages/article-list-page/article-list-page.component';
 
 export const routes: Routes = [
   {
@@ -32,6 +33,10 @@ export const routes: Routes = [
   {
     path: 'admin',
     component: AdminComponent,
+  },
+  {
+    path: 'list',
+    component: ArticleListPageComponent,
   },
   {
     path: '**',

@@ -141,7 +141,7 @@ export async function getScoredArticleList({
   labels ??= [];
   dateDiffModifier ??= 100;
   viewsModifier ??= 100;
-  randomModifier ??= 2;
+  randomModifier ??= 1;
 
   let pipeline: PipelineStage[] = [
     {
@@ -250,9 +250,7 @@ export async function getScoredArticleList({
       {
         $match: {
           searchedLabels: {
-            $ne: {
-              $size: 0,
-            },
+            $ne: [],
           },
         },
       },
@@ -261,4 +259,50 @@ export async function getScoredArticleList({
   }
   const articles = await Article.aggregate(pipeline);
   return articles;
+}
+
+export async function getArticlesCount({
+  author,
+  labels,
+}: {
+  author?: string;
+  labels?: string[];
+}) {
+  const pipelineStages: PipelineStage[] = [];
+  if (labels?.length) {
+    pipelineStages.push({
+      $addFields: {
+        searchedLabels: {
+          $setIntersection: [
+            '$labels',
+            labels.map((label) => new ObjectId(label)),
+          ],
+        },
+      },
+    });
+    pipelineStages.push({
+      $match: {
+        searchedLabels: {
+          $ne: {
+            $size: 0,
+          },
+        },
+      },
+    });
+  }
+
+  if (author) {
+    pipelineStages.push({
+      $match: {
+        author,
+      },
+    });
+  }
+
+  pipelineStages.push({
+    $count: 'count',
+  });
+
+  const { count } = (await Article.aggregate(pipelineStages))[0];
+  return count;
 }

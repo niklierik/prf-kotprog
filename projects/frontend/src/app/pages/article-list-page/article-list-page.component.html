@@ -1,0 +1,11 @@
+@if (articles.isLoading()) {
+  <mat-spinner></mat-spinner>
+} @else if (articles.error()) {
+  <p class="error-text">{{ articles.error() }}</p>
+} @else {
+  <div class="articles">
+    @for (article of articles.value(); track article.id) {
+      <app-article-box [article]="article" class="article"></app-article-box>
+    }
+  </div>
+}

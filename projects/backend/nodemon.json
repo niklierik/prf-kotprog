@@ -1,5 +1,5 @@
 {
-  "exec": "yarn run build && yarn run start",
+  "exec": "yarn run build && yarn run start:debug",
   "verbose": true,
   "watch": ["src"],
   "ignore": ["build"],
