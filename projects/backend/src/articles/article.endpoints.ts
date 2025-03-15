@@ -140,8 +140,10 @@ async function getArticles(req: Request, res: Response): Promise<void> {
   const { page, length, labels, author, randomization } =
     await listArticlesRequestSchema.validate(req.query);
 
+  const userPermissionLevel = req.user?.permissionLevel ?? PermissionLevel.USER;
+
   const articles = await getScoredArticleList({
-    user: req.user?._id,
+    userPermissionLevel,
     author: author || undefined,
     start: page * length,
     limit: length,
@@ -149,7 +151,11 @@ async function getArticles(req: Request, res: Response): Promise<void> {
     randomModifier: randomization,
   });
 
-  const count = await getArticlesCount({ labels, author: author || undefined });
+  const count = await getArticlesCount({
+    labels,
+    author: author || undefined,
+    userPermissionLevel,
+  });
 
   const response: ListArticlesResponse = {
     articles: articles.map((article) => ({

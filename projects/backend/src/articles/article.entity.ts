@@ -1,6 +1,7 @@
 import { ObjectId } from 'mongodb';
 import { model, PipelineStage, Schema } from 'mongoose';
 import { ScoredArticle } from './article.endpoints.js';
+import { PermissionLevel } from '../users/permission-level.js';
 
 export const commentSchema = new Schema(
   {
@@ -118,16 +119,16 @@ export type Article = (
   InstanceType<typeof Article>;
 
 export async function getScoredArticleList({
-  user,
+  userPermissionLevel,
   author,
+  labels,
   start,
   limit,
-  labels,
   dateDiffModifier,
   viewsModifier,
   randomModifier,
 }: {
-  user?: string;
+  userPermissionLevel: PermissionLevel;
   author?: string;
   start?: number;
   limit?: number;
@@ -213,18 +214,11 @@ export async function getScoredArticleList({
       },
     },
   ];
-  if (user) {
+  if (userPermissionLevel < PermissionLevel.WRITER) {
     pipeline = [
       {
         $match: {
-          $or: [
-            {
-              visible: true,
-            },
-            {
-              author: user,
-            },
-          ],
+          visible: true,
         },
       },
       ...pipeline,
@@ -267,13 +261,14 @@ export async function getScoredArticleList({
 }
 
 export async function getArticlesCount({
+  userPermissionLevel,
   author,
   labels,
 }: {
+  userPermissionLevel: PermissionLevel;
   author?: string;
   labels?: string[];
 }) {
-  console.log(author);
   const pipelineStages: PipelineStage[] = [];
   if (labels?.length) {
     pipelineStages.push({
@@ -289,9 +284,7 @@ export async function getArticlesCount({
     pipelineStages.push({
       $match: {
         searchedLabels: {
-          $ne: {
-            $size: 0,
-          },
+          $ne: [],
         },
       },
     });
@@ -301,6 +294,14 @@ export async function getArticlesCount({
     pipelineStages.push({
       $match: {
         author,
+      },
+    });
+  }
+
+  if (userPermissionLevel < PermissionLevel.WRITER) {
+    pipelineStages.push({
+      $match: {
+        visible: true,
       },
     });
   }
