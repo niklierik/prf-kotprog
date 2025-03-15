@@ -43,9 +43,12 @@
 .columns {
   display: flex;
   flex-flow: row;
+  margin: 30px;
 }
 
 .column {
   display: flex;
   flex-flow: column;
+
+  margin: 10px;
 }
