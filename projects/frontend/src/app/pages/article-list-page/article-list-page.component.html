@@ -1,8 +1,8 @@
 @if (articlesRes.isLoading()) {
-  <mat-spinner></mat-spinner>
+  <mat-spinner class="spinner"></mat-spinner>
 } @else if (articlesRes.error()) {
   <p class="error-text">{{ articlesRes.error() }}</p>
-} @else {
+} @else if (articles().length > 0) {
   <ng-container *ngTemplateOutlet="paginator"></ng-container>
   <div class="articles">
     @for (article of articles(); track article.id) {
@@ -10,6 +10,8 @@
     }
   </div>
   <ng-container *ngTemplateOutlet="paginator"></ng-container>
+} @else {
+  <p class="empty">No articles.</p>
 }
 
 <ng-template #paginator>
