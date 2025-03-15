@@ -164,7 +164,12 @@ export async function getScoredArticleList({
               $divide: ['$views', viewsModifier],
             },
             {
-              $multiply: [{ $rand: {} }, randomModifier],
+              $multiply: [
+                {
+                  $rand: {},
+                },
+                randomModifier,
+              ],
             },
           ],
         },
@@ -229,7 +234,7 @@ export async function getScoredArticleList({
     pipeline = [
       {
         $match: {
-          author: user,
+          author,
         },
       },
       ...pipeline,
@@ -268,6 +273,7 @@ export async function getArticlesCount({
   author?: string;
   labels?: string[];
 }) {
+  console.log(author);
   const pipelineStages: PipelineStage[] = [];
   if (labels?.length) {
     pipelineStages.push({
@@ -303,6 +309,12 @@ export async function getArticlesCount({
     $count: 'count',
   });
 
-  const { count } = (await Article.aggregate(pipelineStages))[0];
+  const countQueryResult = await Article.aggregate(pipelineStages);
+
+  if (!countQueryResult?.length) {
+    return 0;
+  }
+
+  const { count } = countQueryResult[0];
   return count;
 }

@@ -4,10 +4,11 @@ import { LabelComponent } from '../label/label.component';
 import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../services/auth/auth.service';
+import { AuthorComponent } from '../author/author.component';
 
 @Component({
   selector: 'app-article-box',
-  imports: [LabelComponent, MatIconModule],
+  imports: [LabelComponent, MatIconModule, AuthorComponent],
   templateUrl: './article-box.component.html',
   styleUrl: './article-box.component.scss',
 })

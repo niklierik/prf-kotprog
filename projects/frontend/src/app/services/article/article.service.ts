@@ -41,7 +41,7 @@ export class ArticleService {
     if (author) {
       query.append('author', author);
     }
-    if (labels) {
+    if (labels?.length) {
       query.append('labels', labels.join(','));
     }
     if (page) {

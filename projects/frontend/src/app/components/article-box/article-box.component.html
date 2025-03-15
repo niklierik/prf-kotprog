@@ -16,10 +16,13 @@
           </mat-icon>
         }
       </p>
-      <div class="labels">
-        @for (label of article.labels; track label.id) {
-          <app-label [label]="label"></app-label>
-        }
+      <div class="author-and-labels">
+        <app-author [author]="article.author"></app-author>
+        <div class="labels">
+          @for (label of article.labels; track label.id) {
+            <app-label [label]="label"></app-label>
+          }
+        </div>
       </div>
     </div>
   </div>

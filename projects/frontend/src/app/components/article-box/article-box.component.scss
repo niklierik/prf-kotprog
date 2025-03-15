@@ -22,6 +22,12 @@
   width: auto;
 }
 
+.author-and-labels {
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+}
+
 .labels {
   display: flex;
   flex-flow: row;

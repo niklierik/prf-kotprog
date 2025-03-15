@@ -15,9 +15,11 @@ export class LabelComponent {
 
   public constructor(private readonly router: Router) {}
 
-  public async onClick(): Promise<void> {
-    await this.router.navigate(['/list'], {
-      queryParams: { labels: this.label.id },
+  public onClick(): void {
+    this.router.navigate(['/list'], {
+      queryParams: {
+        labels: this.label.id,
+      },
     });
   }
 }
