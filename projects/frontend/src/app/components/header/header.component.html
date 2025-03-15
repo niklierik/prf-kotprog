@@ -32,8 +32,12 @@
 </div>
 
 <mat-menu #menu>
-  <button mat-menu-item>
-    Create article
-    <mat-icon fontIcon="edit"></mat-icon>
-  </button>
+  <ng-template matMenuContent>
+    @if (permissionLevel() >= PermissionLevel.WRITER) {
+      <button mat-menu-item routerLink="/compose">
+        Create article
+        <mat-icon fontIcon="edit"></mat-icon>
+      </button>
+    }
+  </ng-template>
 </mat-menu>

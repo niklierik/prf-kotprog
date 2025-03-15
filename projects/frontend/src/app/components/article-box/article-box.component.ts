@@ -1,5 +1,12 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { ArticleInfo } from '@kotprog/common';
+import {
+  Component,
+  computed,
+  Input,
+  OnChanges,
+  Signal,
+  SimpleChanges,
+} from '@angular/core';
+import { ArticleInfo, PermissionLevel } from '@kotprog/common';
 import { LabelComponent } from '../label/label.component';
 import { Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
@@ -18,10 +25,24 @@ export class ArticleBoxComponent implements OnChanges {
 
   public locked: boolean = false;
 
+  public readonly canModify: Signal<boolean>;
+
   public constructor(
     private readonly router: Router,
     private readonly authService: AuthService,
-  ) {}
+  ) {
+    this.canModify = computed(() => {
+      const authInfo = this.authService.payload();
+
+      const permissionLevel = authInfo?.permissionLevel ?? PermissionLevel.USER;
+
+      if (permissionLevel >= PermissionLevel.ADMIN) {
+        return true;
+      }
+
+      return this.article.author.id === authInfo?.email;
+    });
+  }
 
   public ngOnChanges(changes: SimpleChanges): void {
     this.locked =

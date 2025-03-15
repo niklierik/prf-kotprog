@@ -26,6 +26,8 @@ import { MatMenuModule } from '@angular/material/menu';
   styleUrl: './header.component.scss',
 })
 export class HeaderComponent {
+  public readonly PermissionLevel = PermissionLevel;
+
   public readonly user: Signal<UserInfo | undefined>;
 
   public readonly permissionLevel: Signal<PermissionLevel>;
