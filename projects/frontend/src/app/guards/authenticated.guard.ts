@@ -7,7 +7,7 @@ export const authenticatedGuard: CanActivateFn = () => {
   const router = inject(Router);
 
   const isAuthenticated = authService.isAuthenticated();
-  if (isAuthenticated) {
+  if (!isAuthenticated) {
     return router.createUrlTree(['login']);
   }
 
