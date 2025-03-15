@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { User } from './users/user.entity.js';
-import { PermissionLevel } from './users/permission-level.js';
+import { PermissionLevel } from '@kotprog/common';
 import { File } from './files/file.entity.js';
 import { Label } from './labels/label.entity.js';
 import { writeFile } from 'fs/promises';

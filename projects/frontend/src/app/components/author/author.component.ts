@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { Author } from './author.model';
+import { UserInfo } from './user-info.model';
 import { Router, RouterModule } from '@angular/router';
 
 @Component({
@@ -10,7 +10,7 @@ import { Router, RouterModule } from '@angular/router';
 })
 export class AuthorComponent {
   @Input({ required: true })
-  public author!: Author;
+  public author!: UserInfo;
 
   public constructor(private readonly router: Router) {}
 

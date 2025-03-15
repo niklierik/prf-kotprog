@@ -14,7 +14,7 @@ import type { StringValue } from 'ms';
 import { createAuthMiddleware } from './auth.middleware.js';
 
 import jwt from 'jsonwebtoken';
-import { PermissionLevel } from './permission-level.js';
+import { PermissionLevel } from '@kotprog/common';
 import { PermissionError } from '../errors/permission-error.js';
 const { sign } = jwt;
 
@@ -56,6 +56,7 @@ async function login(req: Request, res: Response): Promise<void> {
     email,
     name: user.name || '',
     avatar: findAvatar(user),
+    permissionLevel: user.permissionLevel,
   };
 
   const jwt = sign(payload, config.auth.secret, {

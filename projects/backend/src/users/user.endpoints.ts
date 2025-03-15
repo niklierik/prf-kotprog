@@ -1,7 +1,6 @@
 import { Request, Response, Router } from 'express';
 import { createAuthMiddleware } from './auth.middleware.js';
-import { PermissionLevel } from './permission-level.js';
-
+import { PermissionLevel } from '@kotprog/common';
 const userRouter = Router();
 
 async function modifyUser(req: Request, res: Response): Promise<void> {

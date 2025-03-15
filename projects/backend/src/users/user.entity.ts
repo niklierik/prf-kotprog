@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose';
 import { config } from '../config/config.js';
-import { PermissionLevel } from './permission-level.js';
+import { PermissionLevel } from '@kotprog/common';
 import bcrypt from 'bcryptjs';
 
 export const userSchema = new Schema(

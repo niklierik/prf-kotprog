@@ -6,8 +6,7 @@ import {
   ListLabelsResponse,
 } from '@kotprog/common';
 import { Label } from './label.entity.js';
-import { PermissionLevel } from '../users/permission-level.js';
-
+import { PermissionLevel } from '@kotprog/common';
 const labelRouter = Router();
 const guestEndpoints = Router();
 const adminEndpoints = Router();

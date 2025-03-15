@@ -11,7 +11,7 @@ import {
 import { UnauthenticatedError } from '../errors/unauthenticated-error.js';
 import { PermissionError } from '../errors/permission-error.js';
 import { createAuthMiddleware } from '../users/auth.middleware.js';
-import { PermissionLevel } from '../users/permission-level.js';
+import { PermissionLevel } from '@kotprog/common';
 import { NotFoundError } from '../errors/not-found-error.js';
 
 const fileRouter = Router();

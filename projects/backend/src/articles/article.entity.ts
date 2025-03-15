@@ -1,8 +1,7 @@
 import { ObjectId } from 'mongodb';
 import { model, PipelineStage, Schema } from 'mongoose';
 import { ScoredArticle } from './article.endpoints.js';
-import { PermissionLevel } from '../users/permission-level.js';
-
+import { PermissionLevel } from '@kotprog/common';
 export const commentSchema = new Schema(
   {
     text: { type: String, required: true },

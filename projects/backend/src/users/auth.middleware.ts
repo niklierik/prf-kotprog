@@ -5,7 +5,7 @@ import { config } from '../config/config.js';
 import jwt from 'jsonwebtoken';
 import { TokenPayload } from '@kotprog/common';
 import { User } from './user.entity.js';
-import { PermissionLevel } from './permission-level.js';
+import { PermissionLevel } from '@kotprog/common';
 import { UnauthenticatedError } from '../errors/unauthenticated-error.js';
 import { PermissionError } from '../errors/permission-error.js';
 const { verify } = jwt;
