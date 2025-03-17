@@ -1,0 +1,30 @@
+:host {
+  display: block;
+  height: max-content;
+}
+
+main {
+  height: 100%;
+}
+
+.error-text {
+  color: red;
+}
+
+.preview,
+.code-editor {
+  height: calc(90vh - 100px);
+  width: 50%;
+}
+
+.preview {
+  padding-left: 10px;
+  padding-right: 10px;
+  overflow-y: auto;
+}
+
+.editor-container {
+  display: flex;
+  flex-flow: row;
+  width: 100%;
+}

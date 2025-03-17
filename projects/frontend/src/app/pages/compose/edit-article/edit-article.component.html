@@ -1,0 +1,19 @@
+<main>
+  @if (contentResource.isLoading()) {
+    <mat-spinner></mat-spinner>
+  } @else if (contentResource.error()) {
+    <p class="error-text">{{ contentResource.error() }}</p>
+  } @else {
+    <div class="editor-container">
+      <ngx-monaco-editor
+        #editor
+        [options]="editorOptions"
+        [model]="model()"
+        class="code-editor"
+        [(ngModel)]="content"
+      >
+      </ngx-monaco-editor>
+      <markdown [data]="content" class="preview"> </markdown>
+    </div>
+  }
+</main>
