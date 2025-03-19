@@ -11,6 +11,7 @@ import {
   ArticleInfo,
   listArticlesRequestSchema,
   ListArticlesResponse,
+  updateArticleTitleRequestSchema,
 } from '@kotprog/common';
 import { ObjectId } from 'mongodb';
 import { findAvatar, User } from '../users/user.entity.js';
@@ -188,10 +189,12 @@ async function getArticles(req: Request, res: Response): Promise<void> {
   res.send(response);
 }
 
-async function updateArticle(req: Request, res: Response): Promise<void> {
+async function updateArticleTitle(req: Request, res: Response): Promise<void> {
   const id: string = req.params['id'];
 
   const user = req.user!;
+
+  const { title } = await updateArticleTitleRequestSchema.validate(req.body);
 
   const article = await Article.findById(new ObjectId(id));
 
@@ -205,6 +208,10 @@ async function updateArticle(req: Request, res: Response): Promise<void> {
   ) {
     throw new PermissionError();
   }
+
+  await article.updateOne({
+    title,
+  });
 
   res.status(200);
   res.send();
@@ -312,7 +319,9 @@ async function addLabel(req: Request, res: Response): Promise<void> {
 
   article.labels.push(new ObjectId(labelId));
 
-  await article.updateOne({ labels: article.labels });
+  await article.updateOne({
+    labels: article.labels,
+  });
 
   res.status(201);
   res.send({});
@@ -379,7 +388,7 @@ const writerEndpoints = Router();
 writerEndpoints.use(createAuthMiddleware(PermissionLevel.WRITER));
 
 writerEndpoints.post('/', createArticle);
-writerEndpoints.patch('/:id', updateArticle);
+writerEndpoints.patch('/:id/title', updateArticleTitle);
 writerEndpoints.delete('/', deleteArticle);
 writerEndpoints.post('/:articleId/labels/:labelId', addLabel);
 writerEndpoints.delete('/:articleId/labels/:labelId', removeLabel);

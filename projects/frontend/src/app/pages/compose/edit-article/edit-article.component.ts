@@ -51,9 +51,9 @@ import { MatMenuModule } from '@angular/material/menu';
   styleUrl: './edit-article.component.scss',
 })
 export class EditArticleComponent {
-  readonly addOnBlur = true;
-  readonly separatorKeysCodes = [ENTER, COMMA] as const;
   public readonly id: Signal<string | undefined>;
+
+  public readonly closed: Signal<boolean>;
 
   public readonly infoResource: Resource<ArticleInfo | undefined>;
   public readonly contentResource: Resource<string | undefined>;
@@ -86,6 +86,7 @@ export class EditArticleComponent {
       initialValue: {},
     });
     this.id = computed(() => params()['id']);
+    this.closed = computed(() => Boolean(params()['closed']));
     this.content = '';
 
     this.infoResource = resource({
@@ -152,7 +153,11 @@ export class EditArticleComponent {
       }
 
       await this.articleService.updateContent(id, this.content);
+      await this.articleService.updateTitle(id, { title: this.title });
       this.lastSaved = this.content;
+
+      this.infoResource.reload();
+      this.contentResource.reload();
 
       this.snackbar.open('Article saved.', 'Ok');
     } catch (error) {
@@ -207,5 +212,9 @@ export class EditArticleComponent {
       );
       this.snackbar.open('Failed to remove label.', 'Close');
     }
+  }
+
+  public hasLabel(searchingFor: Label): boolean {
+    return this.labels().some((label) => label.id === searchingFor.id);
   }
 }
