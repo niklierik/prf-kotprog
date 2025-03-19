@@ -20,6 +20,9 @@ import { PermissionLevel } from '@kotprog/common';
 import { PermissionError } from '../errors/permission-error.js';
 import { NotFoundError } from '../errors/not-found-error.js';
 import { text } from 'express';
+import { HttpError } from '../errors/http-error.js';
+import lodash from 'lodash';
+const { remove } = lodash;
 
 export type ScoredArticle = Omit<Article, 'labels' | 'author'> & {
   labels: Label[];
@@ -230,8 +233,13 @@ async function updateArticleContent(
     throw new PermissionError();
   }
 
+  const content: string = req.body;
+  if (!content) {
+    throw new HttpError(400, 'Request body is empty.');
+  }
+
   if (article.type === 'open') {
-    article['content'] = req.body();
+    article['content'] = content;
     await article.save();
 
     res.status(200);
@@ -240,7 +248,7 @@ async function updateArticleContent(
   }
 
   if (closed) {
-    article['closedContent'] = req.body();
+    article['closedContent'] = content;
     await article.save();
 
     res.status(200);
@@ -248,7 +256,7 @@ async function updateArticleContent(
     return;
   }
 
-  article['openContent'] = req.body();
+  article['openContent'] = content;
   await article.save();
 
   res.status(200);
@@ -277,10 +285,75 @@ async function deleteArticle(req: Request, res: Response): Promise<void> {
   res.send();
 }
 
+async function addLabel(req: Request, res: Response): Promise<void> {
+  const { articleId, labelId } = req.params ?? {};
+
+  if (!articleId) {
+    throw new HttpError(400, `Article ID is missing.`);
+  }
+
+  if (!labelId) {
+    throw new HttpError(400, `Label ID is missing.`);
+  }
+
+  const article = await Article.findById(new ObjectId(articleId));
+  if (!article) {
+    throw new HttpError(404, `Article '${articleId}' is not found.`);
+  }
+
+  const hasLabel = article.labels.some(
+    (label) => label.toHexString().toLowerCase() === labelId.toLowerCase(),
+  );
+  if (hasLabel) {
+    res.status(200);
+    res.send();
+    return;
+  }
+
+  article.labels.push(new ObjectId(labelId));
+
+  await article.updateOne({ labels: article.labels });
+
+  res.status(201);
+  res.send({});
+}
+
+async function removeLabel(req: Request, res: Response): Promise<void> {
+  const { articleId, labelId } = req.params ?? {};
+
+  if (!articleId) {
+    throw new HttpError(400, `Article ID is missing.`);
+  }
+
+  if (!labelId) {
+    throw new HttpError(400, `Label ID is missing.`);
+  }
+
+  const article = await Article.findById(new ObjectId(articleId));
+  if (!article) {
+    throw new HttpError(404, `Article '${articleId}' is not found.`);
+  }
+
+  const removedLabels = remove(
+    article.labels,
+    (label) => label.toHexString().toLowerCase() === labelId.toLowerCase(),
+  );
+  if (removedLabels?.length) {
+    await article.updateOne({ labels: article.labels });
+
+    res.status(200);
+    res.send();
+    return;
+  }
+
+  res.status(404);
+  res.send({});
+}
+
 const articleRouter = Router();
 
 const openTextEndpoints = Router();
-openTextEndpoints.use(text());
+openTextEndpoints.use(text({ type: 'text/markdown' }));
 
 openTextEndpoints.get('/:id/content', getArticleContentById);
 articleRouter.use(openTextEndpoints);
@@ -294,18 +367,22 @@ openEndpoints.get('/', getArticles);
 articleJsonRouter.use(openEndpoints);
 
 const closedTextEndpoints = Router();
-closedTextEndpoints.use(text());
+closedTextEndpoints.use(createAuthMiddleware(PermissionLevel.WRITER));
 
 closedTextEndpoints.patch('/:id/content', updateArticleContent);
-// closedTextEndpoints.use(createAuthMiddleware(PermissionLevel.WRITER));
+closedTextEndpoints.use(text({ type: 'text/markdown' }));
+
 articleRouter.use(closedTextEndpoints);
 
 const writerEndpoints = Router();
+
+writerEndpoints.use(createAuthMiddleware(PermissionLevel.WRITER));
+
 writerEndpoints.post('/', createArticle);
 writerEndpoints.patch('/:id', updateArticle);
 writerEndpoints.delete('/', deleteArticle);
-
-writerEndpoints.use(createAuthMiddleware(PermissionLevel.WRITER));
+writerEndpoints.post('/:articleId/labels/:labelId', addLabel);
+writerEndpoints.delete('/:articleId/labels/:labelId', removeLabel);
 
 articleJsonRouter.use(writerEndpoints);
 

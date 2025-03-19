@@ -8,6 +8,8 @@ import { FetchService } from '../fetch.service';
 
 @Injectable({ providedIn: 'root' })
 export class ArticleService {
+  private readonly previewSize = 500;
+
   public constructor(private readonly fetchService: FetchService) {}
 
   public async getArticleById(id: string): Promise<ArticleInfo> {
@@ -60,8 +62,6 @@ export class ArticleService {
     );
     return result;
   }
-
-  private readonly previewSize = 500;
 
   public createArticleSuggestions({
     labels,
@@ -125,5 +125,55 @@ export class ArticleService {
         };
       },
     });
+  }
+
+  public async updateContent(id: string, content: string): Promise<void> {
+    await this.fetchService.fetch(
+      `/api/article/${id}/content`,
+      {
+        body: content,
+        headers: {
+          'Content-Type': 'text/markdown',
+        },
+        method: 'PATCH',
+      },
+      () => undefined,
+    );
+  }
+
+  public async updateClosedContent(id: string, content: string): Promise<void> {
+    await this.fetchService.fetch(`/api/article/${id}/content?closed`, {
+      body: content,
+      headers: {
+        'Content-Type': 'text/markdown',
+      },
+      method: 'PATCH',
+    });
+  }
+
+  public async addLabel(articleId: string, labelId: string): Promise<void> {
+    await this.fetchService.fetch(
+      `/api/article/${articleId}/labels/${labelId}`,
+      {
+        headers: {
+          'Content-Type': 'text/markdown',
+        },
+        method: 'POST',
+      },
+      () => {},
+    );
+  }
+
+  public async removeLabel(articleId: string, labelId: string): Promise<void> {
+    await this.fetchService.fetch(
+      `/api/article/${articleId}/labels/${labelId}`,
+      {
+        headers: {
+          'Content-Type': 'text/markdown',
+        },
+        method: 'DELETE',
+      },
+      () => {},
+    );
   }
 }

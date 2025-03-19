@@ -5,15 +5,98 @@
     <p class="error-text">{{ contentResource.error() }}</p>
   } @else {
     <div class="editor-container">
-      <ngx-monaco-editor
-        #editor
-        [options]="editorOptions"
-        [model]="model()"
-        class="code-editor"
-        [(ngModel)]="content"
+      <div class="code-editor-container">
+        <div class="title-container">
+          <mat-form-field>
+            <input
+              matInput
+              type="text"
+              [(ngModel)]="title"
+              placeholder="Title"
+            />
+          </mat-form-field>
+        </div>
+        <ngx-monaco-editor
+          #editor
+          [options]="editorOptions"
+          class="code-editor"
+          [(ngModel)]="content"
+          [disabled]="uploading()"
+        >
+        </ngx-monaco-editor>
+      </div>
+      <div class="preview-container">
+        <h1 class="title">{{ title }}</h1>
+        <markdown [data]="content" class="preview"> </markdown>
+      </div>
+    </div>
+    <div class="editor-footer">
+      @if (author()) {
+        <app-author [author]="author()!"></app-author>
+      }
+      <button
+        class="button"
+        mat-raised-button
+        (click)="onSave()"
+        [disabled]="lastSaved === content"
       >
-      </ngx-monaco-editor>
-      <markdown [data]="content" class="preview"> </markdown>
+        Save (Ctrl + S)
+      </button>
+      <button
+        class="button"
+        mat-raised-button
+        (click)="onRevert()"
+        [disabled]="lastSaved === content"
+      >
+        Revert
+      </button>
+      <button
+        class="button"
+        mat-raised-button
+        [routerLink]="'/article/' + id()"
+      >
+        Open Article
+      </button>
+    </div>
+    <div class="labels">
+      @for (label of labels(); track label.id) {
+        <app-label
+          [label]="label"
+          [useIcon]="'close'"
+          [isLink]="false"
+          (clicked)="onRemoveLabel($event)"
+        >
+        </app-label>
+      }
+      <button
+        mat-button
+        [disabled]="
+          listLabelsResource.isLoading() || listLabelsResource.error()
+        "
+        [mat-menu-trigger-for]="addLabelMenu"
+      >
+        <mat-icon fontIcon="add"></mat-icon>
+      </button>
+      @if (listLabelsResource.error()) {
+        <p class="error-text">{{ listLabelsResource.error() }}</p>
+      }
     </div>
   }
 </main>
+
+<mat-menu #addLabelMenu>
+  <ng-template matMenuContent>
+    @for (label of listLabelsResource.value(); track label.id) {
+      <button
+        mat-menu-item
+        [ngStyle]="{
+          color: label.textColor,
+          'background-color': label.backgroundColor,
+        }"
+        (click)="onAddLabel(label)"
+      >
+        #{{ label.name }}
+      </button>
+    }
+  </ng-template>
+</mat-menu>

@@ -7,19 +7,46 @@ main {
   height: 100%;
 }
 
+.title-container {
+  flex-grow: 1;
+
+  padding-left: 40px;
+  padding-right: 40px;
+  padding-bottom: 0px;
+  margin-bottom: 0px;
+
+  mat-form-field {
+    width: 100%;
+    margin: 0px;
+  }
+}
+
+.button {
+  margin: 5px;
+}
+
 .error-text {
   color: red;
 }
 
-.preview,
-.code-editor {
-  height: calc(90vh - 100px);
+.code-editor-container,
+.preview-container {
   width: 50%;
 }
 
-.preview {
+.preview-container {
   padding-left: 10px;
   padding-right: 10px;
+}
+
+.preview,
+.code-editor {
+  height: calc(80vh - 100px);
+  width: 100%;
+}
+
+.preview-container {
+  height: calc(80vh - 100px);
   overflow-y: auto;
 }
 
@@ -27,4 +54,23 @@ main {
   display: flex;
   flex-flow: row;
   width: 100%;
+}
+
+.title {
+  text-align: left;
+}
+
+.editor-footer {
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+  margin-left: 20px;
+}
+
+.labels {
+  margin-left: 100px;
+}
+
+.error-text {
+  color: red;
 }
