@@ -13,6 +13,7 @@
               type="text"
               [(ngModel)]="title"
               placeholder="Title"
+              [disabled]="infoResource.isLoading() || !!infoResource.error()"
             />
           </mat-form-field>
         </div>
@@ -87,16 +88,18 @@
 <mat-menu #addLabelMenu>
   <ng-template matMenuContent>
     @for (label of listLabelsResource.value(); track label.id) {
-      <button
-        mat-menu-item
-        [ngStyle]="{
-          color: label.textColor,
-          'background-color': label.backgroundColor,
-        }"
-        (click)="onAddLabel(label)"
-      >
-        #{{ label.name }}
-      </button>
+      @if (!hasLabel(label)) {
+        <button
+          mat-menu-item
+          [ngStyle]="{
+            color: label.textColor,
+            'background-color': label.backgroundColor,
+          }"
+          (click)="onAddLabel(label)"
+        >
+          #{{ label.name }}
+        </button>
+      }
     }
   </ng-template>
 </mat-menu>

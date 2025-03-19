@@ -3,6 +3,7 @@ import {
   ArticleInfo,
   ListArticlesRequest,
   ListArticlesResponse,
+  UpdateArticleTitleRequest,
 } from '@kotprog/common';
 import { FetchService } from '../fetch.service';
 
@@ -138,6 +139,20 @@ export class ArticleService {
         method: 'PATCH',
       },
       () => undefined,
+    );
+  }
+
+  public async updateTitle(
+    id: string,
+    request: UpdateArticleTitleRequest,
+  ): Promise<void> {
+    await this.fetchService.fetch(
+      `/api/article/${id}/title`,
+      {
+        body: JSON.stringify(request),
+        method: 'PATCH',
+      },
+      () => {},
     );
   }
 
