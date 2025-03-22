@@ -8,7 +8,6 @@ import {
   Signal,
   WritableSignal,
 } from '@angular/core';
-import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { ArticleService } from '../../../services/article/article.service';
@@ -42,10 +41,10 @@ import { MatMenuModule } from '@angular/material/menu';
     MatFormFieldModule,
     MatInputModule,
     RouterModule,
-    AuthorComponent,
-    LabelComponent,
     MatIconModule,
     MatMenuModule,
+    AuthorComponent,
+    LabelComponent,
   ],
   templateUrl: './edit-article.component.html',
   styleUrl: './edit-article.component.scss',
@@ -154,6 +153,7 @@ export class EditArticleComponent {
 
       await this.articleService.updateContent(id, this.content);
       await this.articleService.updateTitle(id, { title: this.title });
+
       this.lastSaved = this.content;
 
       this.infoResource.reload();
