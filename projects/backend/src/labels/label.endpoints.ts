@@ -7,9 +7,6 @@ import {
 } from '@kotprog/common';
 import { Label } from './label.entity.js';
 import { PermissionLevel } from '@kotprog/common';
-const labelRouter = Router();
-const guestEndpoints = Router();
-const adminEndpoints = Router();
 
 async function createLabel(req: Request, res: Response): Promise<void> {
   const { name } = await createLabelRequestSchema.validate(req.body);
@@ -55,13 +52,28 @@ async function deleteLabel(req: Request, res: Response): Promise<void> {
   res.send();
 }
 
-adminEndpoints.post('/', createLabel);
-guestEndpoints.get('/', listLabels);
-adminEndpoints.patch('/:id', updateLabel);
-adminEndpoints.delete('/:id', deleteLabel);
+export function createOpenEndpoints(): Router {
+  const router = Router();
 
-adminEndpoints.use(createAuthMiddleware(PermissionLevel.ADMIN));
-labelRouter.use(guestEndpoints);
-labelRouter.use(adminEndpoints);
+  router.get('/', listLabels);
+
+  return router;
+}
+
+export function createAdminEndpoints(): Router {
+  const router = Router();
+  router.use(createAuthMiddleware(PermissionLevel.ADMIN));
+
+  router.post('/', createLabel);
+  router.patch('/:id', updateLabel);
+  router.delete('/:id', deleteLabel);
+
+  return router;
+}
+
+const labelRouter = Router();
+
+labelRouter.use(createOpenEndpoints());
+labelRouter.use(createAdminEndpoints());
 
 export { labelRouter };

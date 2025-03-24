@@ -359,42 +359,56 @@ async function removeLabel(req: Request, res: Response): Promise<void> {
   res.send({});
 }
 
+function createOpenJsonEndpoints(): Router {
+  const router = Router();
+
+  router.use(json());
+
+  router.get('/:id', getArticleById);
+  router.get('/', getArticles);
+
+  return router;
+}
+
+function createOpenTextEndpoints(): Router {
+  const router = Router();
+
+  router.use(text({ type: 'text/markdown' }));
+
+  router.get('/:id/content', getArticleContentById);
+
+  return router;
+}
+
+function createWriterJsonEndpoints(): Router {
+  const router = Router();
+
+  router.use(json());
+  router.use(createAuthMiddleware(PermissionLevel.WRITER));
+
+  router.post('/', createArticle);
+  router.patch('/:id/title', updateArticleTitle);
+  router.delete('/:id', deleteArticle);
+  router.post('/:articleId/labels/:labelId', addLabel);
+  router.delete('/:articleId/labels/:labelId', removeLabel);
+
+  return router;
+}
+
+function createWriterTextEndpoints(): Router {
+  const router = Router();
+  router.use(text({ type: 'text/markdown' }));
+  router.use(createAuthMiddleware(PermissionLevel.WRITER));
+
+  router.patch('/:id/content', updateArticleContent);
+
+  return router;
+}
+
 const articleRouter = Router();
-
-const openTextEndpoints = Router();
-openTextEndpoints.use(text({ type: 'text/markdown' }));
-
-openTextEndpoints.get('/:id/content', getArticleContentById);
-articleRouter.use(openTextEndpoints);
-
-const articleJsonRouter = Router();
-articleJsonRouter.use(json());
-
-const openEndpoints = Router();
-openEndpoints.get('/:id', getArticleById);
-openEndpoints.get('/', getArticles);
-articleJsonRouter.use(openEndpoints);
-
-const closedTextEndpoints = Router();
-closedTextEndpoints.use(createAuthMiddleware(PermissionLevel.WRITER));
-
-closedTextEndpoints.patch('/:id/content', updateArticleContent);
-closedTextEndpoints.use(text({ type: 'text/markdown' }));
-
-articleRouter.use(closedTextEndpoints);
-
-const writerEndpoints = Router();
-
-writerEndpoints.use(createAuthMiddleware(PermissionLevel.WRITER));
-
-writerEndpoints.post('/', createArticle);
-writerEndpoints.patch('/:id/title', updateArticleTitle);
-writerEndpoints.delete('/', deleteArticle);
-writerEndpoints.post('/:articleId/labels/:labelId', addLabel);
-writerEndpoints.delete('/:articleId/labels/:labelId', removeLabel);
-
-articleJsonRouter.use(writerEndpoints);
-
-articleRouter.use(articleJsonRouter);
+articleRouter.use(createOpenJsonEndpoints());
+articleRouter.use(createOpenTextEndpoints());
+articleRouter.use(createWriterJsonEndpoints());
+articleRouter.use(createWriterTextEndpoints());
 
 export { articleRouter };

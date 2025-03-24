@@ -156,31 +156,41 @@ async function deleteFile(req: Request, res: Response): Promise<void> {
   res.send();
 }
 
-const jsonRoutes = Router();
+export function createJsonRoutes(): Router {
+  const router = Router();
 
-jsonRoutes.use(json());
+  router.use(json());
+  router.use(createAuthMiddleware(PermissionLevel.WRITER));
 
-jsonRoutes.get('/', listUserFiles);
-jsonRoutes.get('/:id/info', readFileInfo);
-jsonRoutes.delete('/:id', deleteFile);
+  router.get('/', listUserFiles);
+  router.get('/:id/info', readFileInfo);
+  router.delete('/:id', deleteFile);
 
-jsonRoutes.use(createAuthMiddleware(PermissionLevel.WRITER));
+  return router;
+}
 
-const binaryRoutes = Router();
+export function createOpenBinaryRoutes(): Router {
+  const router = Router();
 
-binaryRoutes.use(raw());
+  router.use(raw());
+  router.get('/:id', readFile);
 
-const binaryWriterRoutes = Router();
+  return router;
+}
 
-binaryRoutes.get('/:id', readFile);
-binaryWriterRoutes.patch('/:id', changeFile);
-binaryWriterRoutes.post('/', createFile);
+export function createWriterBinaryRoutes(): Router {
+  const router = Router();
+  router.use(createAuthMiddleware(PermissionLevel.WRITER));
+  router.use(raw());
 
-binaryWriterRoutes.use(createAuthMiddleware(PermissionLevel.WRITER));
+  router.patch('/:id', changeFile);
+  router.post('/', createFile);
 
-binaryRoutes.use(binaryWriterRoutes);
+  return router;
+}
 
-fileRouter.use(binaryRoutes);
-fileRouter.use(jsonRoutes);
+fileRouter.use(createOpenBinaryRoutes());
+fileRouter.use(createWriterBinaryRoutes());
+fileRouter.use(createJsonRoutes());
 
 export { fileRouter };
