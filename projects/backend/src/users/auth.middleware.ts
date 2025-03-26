@@ -18,6 +18,7 @@ type Middleware = (
 
 export function createAuthMiddleware(
   minimumPermission: PermissionLevel,
+  optional = false,
 ): Middleware {
   return async (req, res, next) => {
     try {
@@ -25,11 +26,21 @@ export function createAuthMiddleware(
       const authHeader = headers['authorization'];
 
       if (!authHeader) {
+        if (optional) {
+          await next();
+          return;
+        }
+
         console.error('Authorization header is missing in request.');
         throw new UnauthenticatedError();
       }
 
       if (!authHeader.startsWith('Bearer ')) {
+        if (optional) {
+          await next();
+          return;
+        }
+
         console.error('Authorization header does not start with Bearer.');
         throw new UnauthenticatedError();
       }
@@ -47,14 +58,29 @@ export function createAuthMiddleware(
           .lean()
           .then();
       } catch {
+        if (optional) {
+          await next();
+          return;
+        }
+
         throw new UnauthenticatedError();
       }
 
       if (!req.user) {
+        if (optional) {
+          await next();
+          return;
+        }
+
         throw new UnauthenticatedError();
       }
 
       if (req.user.permissionLevel < minimumPermission) {
+        if (optional) {
+          await next();
+          return;
+        }
+
         throw new PermissionError();
       }
 

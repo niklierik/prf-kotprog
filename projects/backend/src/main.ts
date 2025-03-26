@@ -18,7 +18,7 @@ const app = express();
 
 const seedNeeded = await shouldSeedDb();
 if (seedNeeded) {
-  seedDb().catch((e) => console.error('Failed to seed DB.', e));
+  seedDb().catch((error) => console.error('Failed to seed DB.', error));
 }
 
 await seedSuperAdmin();

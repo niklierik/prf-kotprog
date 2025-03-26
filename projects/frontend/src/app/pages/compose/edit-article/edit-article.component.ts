@@ -9,7 +9,7 @@ import {
   WritableSignal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ArticleService } from '../../../services/article/article.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
@@ -45,6 +45,7 @@ import { MatMenuModule } from '@angular/material/menu';
     MatMenuModule,
     AuthorComponent,
     LabelComponent,
+    MatButtonModule,
   ],
   templateUrl: './edit-article.component.html',
   styleUrl: './edit-article.component.scss',
@@ -52,11 +53,13 @@ import { MatMenuModule } from '@angular/material/menu';
 export class EditArticleComponent {
   public readonly id: Signal<string | undefined>;
 
-  public readonly closed: Signal<boolean>;
+  public readonly editingClosed: Signal<boolean>;
 
   public readonly infoResource: Resource<ArticleInfo | undefined>;
   public readonly contentResource: Resource<string | undefined>;
   public readonly listLabelsResource: Resource<Label[] | undefined>;
+
+  public readonly isClosedArticle: Signal<boolean>;
 
   public readonly uploading: WritableSignal<boolean>;
 
@@ -78,14 +81,18 @@ export class EditArticleComponent {
   public constructor(
     private readonly articleService: ArticleService,
     private readonly snackbar: MatSnackBar,
+    private readonly router: Router,
     activatedRoute: ActivatedRoute,
     labelService: LabelService,
   ) {
     const params = toSignal(activatedRoute.params, {
       initialValue: {},
     });
+    const query = toSignal(activatedRoute.queryParams, {
+      initialValue: {},
+    });
     this.id = computed(() => params()['id']);
-    this.closed = computed(() => Boolean(params()['closed']));
+    this.editingClosed = computed(() => Boolean(query()['closed']));
     this.content = '';
 
     this.infoResource = resource({
@@ -110,13 +117,17 @@ export class EditArticleComponent {
       }),
     });
     this.contentResource = resource({
-      request: () => ({ id: this.id() }),
+      request: () => ({ id: this.id(), editingClosed: this.editingClosed() }),
       loader: async ({ request }) => {
-        const { id } = request;
+        const { id, editingClosed } = request;
         if (!id) {
           return;
         }
-        const response = await articleService.getContentById(id);
+
+        const response = await articleService.getContentById(
+          id,
+          editingClosed ? 'closed' : 'open',
+        );
         if (!response) {
           return '';
         }
@@ -131,6 +142,9 @@ export class EditArticleComponent {
 
     this.author = computed(
       () => this.infoResource.value()?.author ?? undefined,
+    );
+    this.isClosedArticle = computed(
+      () => this.infoResource.value()?.type === 'closed',
     );
     this.labels = signal([]);
 
@@ -150,14 +164,12 @@ export class EditArticleComponent {
       if (!id) {
         throw new Error('Cannot save article without ID.');
       }
+      const type = this.editingClosed() ? 'closed' : 'open';
 
-      await this.articleService.updateContent(id, this.content);
+      await this.articleService.updateContent(id, this.content, type);
       await this.articleService.updateTitle(id, { title: this.title });
 
       this.lastSaved = this.content;
-
-      this.infoResource.reload();
-      this.contentResource.reload();
 
       this.snackbar.open('Article saved.', 'Ok');
     } catch (error) {
@@ -216,5 +228,25 @@ export class EditArticleComponent {
 
   public hasLabel(searchingFor: Label): boolean {
     return this.labels().some((label) => label.id === searchingFor.id);
+  }
+
+  public async switchToOpen(): Promise<void> {
+    try {
+      await this.router.navigate(['compose', this.id()], {
+        queryParams: {},
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  public async switchToClosed(): Promise<void> {
+    try {
+      await this.router.navigate(['compose', this.id()], {
+        queryParams: { closed: 'true' },
+      });
+    } catch (error) {
+      console.error(error);
+    }
   }
 }

@@ -24,9 +24,16 @@ export class ArticleService {
     return result;
   }
 
-  public async getContentById(id: string): Promise<string> {
+  public async getContentById(
+    id: string,
+    type: 'all' | 'open' | 'closed' = 'all',
+  ): Promise<string> {
+    const params = new URLSearchParams();
+    if (type !== 'all') {
+      params.append('only', type);
+    }
     const result = await this.fetchService.fetch<string>(
-      `/api/article/${id}/content`,
+      `/api/article/${id}/content?${params}`,
       {},
       (res) => res.text(),
     );
@@ -128,9 +135,14 @@ export class ArticleService {
     });
   }
 
-  public async updateContent(id: string, content: string): Promise<void> {
+  public async updateContent(
+    id: string,
+    content: string,
+    type?: 'closed' | 'open',
+  ): Promise<void> {
+    const query = type === 'closed' ? '?closed' : '';
     await this.fetchService.fetch(
-      `/api/article/${id}/content`,
+      `/api/article/${id}/content${query}`,
       {
         body: content,
         headers: {

@@ -39,15 +39,18 @@ main {
   padding-right: 10px;
 }
 
+.code-editor {
+  height: calc(80vh - 150px);
+}
+
 .preview,
 .code-editor {
-  height: calc(80vh - 100px);
   width: 100%;
 }
 
-.preview-container {
-  height: calc(80vh - 100px);
+.content-preview {
   overflow-y: auto;
+  height: calc(80vh - 210px);
 }
 
 .editor-container {
@@ -73,4 +76,13 @@ main {
 
 .error-text {
   color: red;
+}
+
+.open-closed-buttons {
+  display: flex;
+  width: 100%;
+  button {
+    flex-grow: 1;
+    margin: 5px 10px;
+  }
 }

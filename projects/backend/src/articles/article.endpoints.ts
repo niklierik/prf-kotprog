@@ -23,6 +23,7 @@ import { NotFoundError } from '../errors/not-found-error.js';
 import { text } from 'express';
 import { HttpError } from '../errors/http-error.js';
 import lodash from 'lodash';
+import { UnauthenticatedError } from '../errors/unauthenticated-error.js';
 const { remove } = lodash;
 
 export type ScoredArticle = Omit<Article, 'labels' | 'author'> & {
@@ -111,6 +112,12 @@ async function getArticleContentById(
   res: Response,
 ): Promise<void> {
   const id: string = req.params['id'];
+  const type: string = String(req.query['only'] ?? 'all');
+
+  if (type === 'closed' && !req.user) {
+    throw new UnauthenticatedError();
+  }
+
   const article = await Article.findById(new ObjectId(id))
     .select('content openContent closedContent type author')
     .then();
@@ -128,9 +135,17 @@ async function getArticleContentById(
   let content = article['content'];
 
   if (article.type === 'closed') {
-    content = article['openContent'];
-    if (req.user) {
-      content += article['closedContent'];
+    if (type === 'all') {
+      content = article['openContent'];
+      if (req.user) {
+        content += article['closedContent'];
+      }
+    }
+    if (type === 'closed' && req.user) {
+      content = article['closedContent'];
+    }
+    if (type === 'open') {
+      content = article['openContent'];
     }
   }
 
@@ -374,6 +389,7 @@ function createOpenTextEndpoints(): Router {
   const router = Router();
 
   router.use(text({ type: 'text/markdown' }));
+  router.use(createAuthMiddleware(PermissionLevel.USER, true));
 
   router.get('/:id/content', getArticleContentById);
 

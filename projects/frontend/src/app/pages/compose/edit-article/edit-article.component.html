@@ -4,6 +4,24 @@
   } @else if (contentResource.error()) {
     <p class="error-text">{{ contentResource.error() }}</p>
   } @else {
+    @if (isClosedArticle()) {
+      <div class="open-closed-buttons">
+        <button
+          mat-raised-button
+          [disabled]="!editingClosed()"
+          (click)="switchToOpen()"
+        >
+          Edit open content
+        </button>
+        <button
+          mat-raised-button
+          [disabled]="editingClosed()"
+          (click)="switchToClosed()"
+        >
+          Edit closed content
+        </button>
+      </div>
+    }
     <div class="editor-container">
       <div class="code-editor-container">
         <div class="title-container">
@@ -28,7 +46,9 @@
       </div>
       <div class="preview-container">
         <h1 class="title">{{ title }}</h1>
-        <markdown [data]="content" class="preview"> </markdown>
+        <div class="content-preview">
+          <markdown [data]="content" class="preview"> </markdown>
+        </div>
       </div>
     </div>
     <div class="editor-footer">
