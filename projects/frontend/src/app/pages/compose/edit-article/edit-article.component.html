@@ -55,12 +55,7 @@
       @if (author()) {
         <app-author [author]="author()!"></app-author>
       }
-      <button
-        class="button"
-        mat-raised-button
-        (click)="onSave()"
-        [disabled]="lastSaved === content"
-      >
+      <button class="button" mat-raised-button (click)="onSave()">
         Save (Ctrl + S)
       </button>
       <button
