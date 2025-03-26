@@ -1,0 +1,24 @@
+<h1>Settings</h1>
+<mat-card class="card">
+  <mat-card-content>
+    <div class="card-content">
+      @if (user()) {
+        <app-author [author]="user()!"></app-author>
+      }
+
+      <button
+        class="button"
+        type="submit"
+        mat-raised-button
+        [disabled]="loading()"
+        (click)="uploadAvatar()"
+      >
+        Upload avatar
+      </button>
+
+      @if (error()) {
+        <p class="error-text">{{ error() }}</p>
+      }
+    </div>
+  </mat-card-content>
+</mat-card>
