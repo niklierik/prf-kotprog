@@ -12,6 +12,7 @@ import {
   listArticlesRequestSchema,
   ListArticlesResponse,
   updateArticleTitleRequestSchema,
+  createArticleRequestSchema,
 } from '@kotprog/common';
 import { ObjectId } from 'mongodb';
 import { findAvatar, User } from '../users/user.entity.js';
@@ -33,7 +34,7 @@ export type ScoredArticle = Omit<Article, 'labels' | 'author'> & {
 };
 
 async function createArticle(req: Request, res: Response): Promise<void> {
-  const closed = Boolean(req.query['closed']);
+  const { title, closed } = await createArticleRequestSchema.validate(req.body);
 
   const author = req.user!._id;
 
@@ -42,11 +43,13 @@ async function createArticle(req: Request, res: Response): Promise<void> {
   if (closed) {
     const article = await ClosedArticle.create({
       author,
+      title,
     });
     id = article._id.toHexString();
   } else {
     const article = await OpenArticle.create({
       author,
+      title,
     });
     id = article._id.toHexString();
   }
@@ -378,6 +381,7 @@ function createOpenJsonEndpoints(): Router {
   const router = Router();
 
   router.use(json());
+  router.use(createAuthMiddleware(PermissionLevel.USER, true));
 
   router.get('/:id', getArticleById);
   router.get('/', getArticles);

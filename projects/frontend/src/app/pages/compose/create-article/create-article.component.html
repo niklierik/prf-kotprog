@@ -1,1 +1,35 @@
-<h2></h2>
+<h1>Create Article</h1>
+<mat-card class="card">
+  <mat-card-content>
+    <form class="form" (ngSubmit)="createArticle()">
+      <div class="field">
+        <mat-form-field>
+          <mat-label>Title</mat-label>
+          <input
+            matInput
+            type="text"
+            [formControl]="title"
+            [disabled]="createArticleResource.isLoading()"
+          />
+        </mat-form-field>
+      </div>
+      <div class="field">
+        <mat-checkbox [formControl]="closedArticle" class="noselect">
+          Closed article
+        </mat-checkbox>
+      </div>
+
+      <button
+        type="submit"
+        mat-raised-button
+        [disabled]="!title.valid"
+        [disabled]="createArticleResource.isLoading()"
+      >
+        Create Article
+      </button>
+      @if (createArticleResource.error()) {
+        <p class="error-text">{{ createArticleResource.error() }}</p>
+      }
+    </form>
+  </mat-card-content>
+</mat-card>

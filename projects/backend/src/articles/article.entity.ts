@@ -73,7 +73,6 @@ export const openArticleSchema = new Schema(
   {
     content: {
       type: String,
-      required: true,
       default: '',
     },
   },
@@ -86,12 +85,10 @@ export const closedArticleSchema = new Schema(
   {
     openContent: {
       type: String,
-      required: true,
       default: '',
     },
     closedContent: {
       type: String,
-      required: true,
       default: '',
     },
   },
@@ -152,11 +149,16 @@ export async function getScoredArticleList({
               $divide: [
                 dateDiffModifier,
                 {
-                  $dateDiff: {
-                    startDate: '$createdAt',
-                    endDate: '$$NOW',
-                    unit: 'hour',
-                  },
+                  $max: [
+                    {
+                      $dateDiff: {
+                        startDate: '$createdAt',
+                        endDate: '$$NOW',
+                        unit: 'hour',
+                      },
+                    },
+                    0.1,
+                  ],
                 },
               ],
             },
@@ -223,6 +225,7 @@ export async function getScoredArticleList({
       ...pipeline,
     ];
   }
+
   if (author) {
     pipeline = [
       {

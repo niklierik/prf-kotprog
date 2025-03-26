@@ -1,6 +1,8 @@
 import { Injectable, Resource, resource } from '@angular/core';
 import {
   ArticleInfo,
+  CreateArticleRequestData,
+  CreateArticleResponseData,
   ListArticlesRequest,
   ListArticlesResponse,
   UpdateArticleTitleRequest,
@@ -12,6 +14,18 @@ export class ArticleService {
   private readonly previewSize = 500;
 
   public constructor(private readonly fetchService: FetchService) {}
+
+  public async createArticleService(
+    createArticleRequest: CreateArticleRequestData,
+  ): Promise<CreateArticleResponseData> {
+    return await this.fetchService.fetch<CreateArticleResponseData>(
+      '/api/article',
+      {
+        method: 'POST',
+        body: JSON.stringify(createArticleRequest),
+      },
+    );
+  }
 
   public async getArticleById(id: string): Promise<ArticleInfo> {
     const result = await this.fetchService.fetch<ArticleInfo>(

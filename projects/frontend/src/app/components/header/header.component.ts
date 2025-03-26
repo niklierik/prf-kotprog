@@ -1,5 +1,5 @@
 import { Component, computed, Resource, Signal } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { AuthService } from '../../services/auth/auth.service';
@@ -36,6 +36,7 @@ export class HeaderComponent {
 
   public constructor(
     private readonly authService: AuthService,
+    private readonly router: Router,
     labelService: LabelService,
   ) {
     this.user = computed(() => {
@@ -62,5 +63,6 @@ export class HeaderComponent {
 
   public logout(): void {
     this.authService.logout();
+    this.router.navigate(['/home']);
   }
 }

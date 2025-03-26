@@ -1,21 +1,15 @@
-import {
-  Component,
-  computed,
-  effect,
-  Resource,
-  resource,
-  Signal,
-} from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component, effect, Resource, Signal } from '@angular/core';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { map } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ArticleService } from '../../services/article/article.service';
-import { ArticleInfo, ListArticlesResponse } from '@kotprog/common';
+import { ArticleInfo } from '@kotprog/common';
 import { ArticleComponent } from './article/article.component';
 import { ArticleSuggestionComponent } from './article-suggestion/article-suggestion.component';
 import { Title } from '@angular/platform-browser';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ArticlePageResources } from './article-page.resources';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-article-page',
@@ -23,6 +17,9 @@ import { ArticlePageResources } from './article-page.resources';
     ArticleComponent,
     ArticleSuggestionComponent,
     MatProgressSpinnerModule,
+    MatButtonModule,
+    MatIconModule,
+    RouterModule,
   ],
   templateUrl: './article-page.component.html',
   styleUrl: './article-page.component.scss',
