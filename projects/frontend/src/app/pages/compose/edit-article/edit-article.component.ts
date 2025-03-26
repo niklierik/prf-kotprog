@@ -60,6 +60,7 @@ export class EditArticleComponent {
   public readonly listLabelsResource: Resource<Label[] | undefined>;
 
   public readonly isClosedArticle: Signal<boolean>;
+  public readonly isVisible: Signal<boolean>;
 
   public readonly uploading: WritableSignal<boolean>;
 
@@ -147,6 +148,9 @@ export class EditArticleComponent {
       () => this.infoResource.value()?.type === 'closed',
     );
     this.labels = signal([]);
+    this.isVisible = computed(() =>
+      Boolean(this.infoResource.value()?.visible),
+    );
 
     this.listLabelsResource = labelService.listLabelsResource();
   }
@@ -247,6 +251,40 @@ export class EditArticleComponent {
       });
     } catch (error) {
       console.error(error);
+    }
+  }
+
+  public async toggleVisibility(): Promise<void> {
+    try {
+      const id = this.id();
+      if (!id) {
+        return;
+      }
+
+      const visible = !this.isVisible();
+
+      await this.articleService.updateVisible(id, visible);
+      await this.onSave();
+
+      this.infoResource.reload();
+    } catch (error) {
+      console.error(error);
+      this.snackbar.open("Failed to update article's visibility.", 'Close');
+    }
+  }
+
+  public async onDelete(): Promise<void> {
+    try {
+      const id = this.id();
+      if (!id) {
+        return;
+      }
+
+      await this.articleService.deleteArticle(id);
+      this.router.navigate(['home']);
+    } catch (error) {
+      console.error(error);
+      this.snackbar.open('Failed to delete article.', 'Close');
     }
   }
 }

@@ -6,6 +6,7 @@ import {
   ListArticlesRequest,
   ListArticlesResponse,
   UpdateArticleTitleRequest,
+  updateArticleVisibilityRequest,
 } from '@kotprog/common';
 import { FetchService } from '../fetch.service';
 
@@ -149,6 +150,19 @@ export class ArticleService {
     });
   }
 
+  public async updateVisible(id: string, visible: boolean): Promise<void> {
+    const request: updateArticleVisibilityRequest = { visible };
+
+    await this.fetchService.fetch(
+      `/api/article/${id}/visibility`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify(request),
+      },
+      () => {},
+    );
+  }
+
   public async updateContent(
     id: string,
     content: string,
@@ -214,6 +228,14 @@ export class ArticleService {
         },
         method: 'DELETE',
       },
+      () => {},
+    );
+  }
+
+  public async deleteArticle(id: string): Promise<void> {
+    await this.fetchService.fetch(
+      `/api/article/${id}`,
+      { method: 'DELETE' },
       () => {},
     );
   }

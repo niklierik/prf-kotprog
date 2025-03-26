@@ -13,6 +13,7 @@ import {
   ListArticlesResponse,
   updateArticleTitleRequestSchema,
   createArticleRequestSchema,
+  updateArticleVisibilityRequestSchema,
 } from '@kotprog/common';
 import { ObjectId } from 'mongodb';
 import { findAvatar, User } from '../users/user.entity.js';
@@ -235,6 +236,18 @@ async function updateArticleTitle(req: Request, res: Response): Promise<void> {
   res.send();
 }
 
+async function updateVisibility(req: Request, res: Response): Promise<void> {
+  const id: string = req.params['id'];
+  const { visible } = await updateArticleVisibilityRequestSchema.validate(
+    req.body,
+  );
+
+  await Article.updateOne({ _id: new ObjectId(id) }, { visible });
+
+  res.status(200);
+  res.send();
+}
+
 async function updateArticleContent(
   req: Request,
   res: Response,
@@ -258,10 +271,7 @@ async function updateArticleContent(
     throw new PermissionError();
   }
 
-  const content: string = req.body;
-  if (!content) {
-    throw new HttpError(400, 'Request body is empty.');
-  }
+  const content: string = req.body || '';
 
   if (article.type === 'open') {
     article['content'] = content;
@@ -305,6 +315,8 @@ async function deleteArticle(req: Request, res: Response): Promise<void> {
   ) {
     throw new PermissionError();
   }
+
+  await article.deleteOne();
 
   res.status(200);
   res.send();
@@ -411,6 +423,7 @@ function createWriterJsonEndpoints(): Router {
   router.delete('/:id', deleteArticle);
   router.post('/:articleId/labels/:labelId', addLabel);
   router.delete('/:articleId/labels/:labelId', removeLabel);
+  router.patch('/:id/visibility', updateVisibility);
 
   return router;
 }

@@ -73,6 +73,12 @@
       >
         Open Article
       </button>
+      <button class="button" mat-raised-button (click)="toggleVisibility()">
+        Make it {{ isVisible() ? 'hidden' : 'visible' }}
+      </button>
+      <button mat-flat-button class="button danger" (click)="onDelete()">
+        Delete
+      </button>
     </div>
     <div class="labels">
       @for (label of labels(); track label.id) {
