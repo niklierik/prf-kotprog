@@ -1,7 +1,13 @@
 <div class="edit-btn-container">
-  <button mat-button class="edit-btn" [routerLink]="'/compose/' + articleId()">
-    Edit <mat-icon fontIcon="edit"></mat-icon>
-  </button>
+  @if (canEditArticle()) {
+    <button
+      mat-button
+      class="edit-btn"
+      [routerLink]="'/compose/' + articleId()"
+    >
+      Edit <mat-icon fontIcon="edit"></mat-icon>
+    </button>
+  }
 </div>
 <main class="page">
   @if (data.isLoading() && info.isLoading()) {
