@@ -14,6 +14,22 @@ A szuperadmin is admin, azonban az ő felhasználója a rendszer létrejöttéve
 
 # Telepítés
 
+Az alkalmazáshoz csak development environment készült. Ez miatt előfeltétel, hogy a futtató eszközön legyen Node 22.
+
+Az NPM csomagok kezeléséhez `Yarn`-t használtam, ezt telepíteni a következő paranccsal lehet:
+
+```bash
+npm i -g yarn
+```
+
+Ezután a `node_modules`-okat a következő paranccsal tudjuk telepíteni:
+
+```bash
+yarn
+```
+
+Ezután szükséges a projects/backend mappában létrehozni egy `env.json` fájlt, mely a szerver konfigurációját tartalmazza. Az env.example.json tartalmaz egy példa változatot.
+
 Az alkalmazás Dockerral indítható (Development build, tehát watchmode-ban):
 
 ```bash
@@ -21,3 +37,8 @@ docker compose up -d
 ```
 
 Ezzel elindul minden szükséges service. Az nginx `81`-es portra van configolva, az alkalmazás a http://localhost:81 cím alatt érhető el. Az adatbázis seedelése is megtörténik, ezt a backend projektben található `.seeded-db` fájl létezése jelzi (ha ezt a fájlt kitöröljük, akkor indításkor az adatbázis újra seedelődik). Ez a folyamat képek letöltése miatt időbe telhet.
+
+A superadminnal való bejelentkezéshez:
+
+- Felhasználónév: super
+- Jelszó: admin
