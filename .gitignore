@@ -39,4 +39,5 @@ projects/backend/env.json
 **/seeded-users.txt
 **/.seeded-db
 
-mongo_data/
+mongo_data/**
+!mongo_data/.gitkeep
