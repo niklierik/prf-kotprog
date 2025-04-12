@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { User } from './users/user.entity.js';
+import { seedSuperAdmin, User } from './users/user.entity.js';
 import { PermissionLevel } from '@kotprog/common';
 import { File } from './files/file.entity.js';
 import { Label } from './labels/label.entity.js';
@@ -308,6 +308,7 @@ export async function seedDb(): Promise<void> {
   console.log('Creating labels');
   await createLabels();
   console.log('Creating users');
+  await seedSuperAdmin();
   await createUsers();
   console.log('Creating articles');
   await createArticles();

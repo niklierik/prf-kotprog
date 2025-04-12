@@ -35,9 +35,13 @@ export class LoginComponent {
   public readonly storeLogin: FormControl;
 
   public constructor(authService: AuthService, router: Router) {
-    this.email = new FormControl('', [Validators.required]);
-    this.password = new FormControl('', [Validators.required]);
-    this.storeLogin = new FormControl(false);
+    this.email = new FormControl({ value: '', disabled: false }, [
+      Validators.required,
+    ]);
+    this.password = new FormControl({ value: '', disabled: false }, [
+      Validators.required,
+    ]);
+    this.storeLogin = new FormControl({ value: false, disabled: false });
 
     this.loginResource = resource({
       loader: async () => {
