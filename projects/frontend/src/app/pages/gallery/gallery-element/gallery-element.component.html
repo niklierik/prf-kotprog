@@ -1,0 +1,18 @@
+<div class="row">
+  @if (image.mimeType.startsWith('image/')) {
+    <img [src]="'/api/file/' + image.id" height="128px" />
+  }
+  <div class="column" style="margin: 10px">
+    <h2>{{ image.name }}</h2>
+    <div class="row">
+      <a [href]="'/api/file/' + image.id" target="_blank">
+        <button mat-button>Open in new tab</button>
+      </a>
+      <button mat-button (click)="onCopyLink()">Copy link</button>
+      <button mat-flat-button class="danger" (click)="onDelete()">
+        Delete
+      </button>
+      <p>{{ error() }}</p>
+    </div>
+  </div>
+</div>

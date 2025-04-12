@@ -1,1 +1,37 @@
-<p>gallery works!</p>
+<main>
+  <app-file-upload
+    accept="image/*"
+    [disabled]="isLoading()"
+    (upload)="uploadImage($event)"
+  >
+  </app-file-upload>
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+  @if (isLoading()) {
+    <mat-progress-spinner></mat-progress-spinner>
+  }
+
+  @if (filesResource.isLoading()) {
+    <mat-progress-spinner></mat-progress-spinner>
+  } @else if (filesResource.error()) {
+    <p class="error">{{ filesResource.error() }}</p>
+  } @else {
+    @for (image of files(); track image.id) {
+      <app-gallery-element [image]="image" [filesResource]="filesResource">
+      </app-gallery-element>
+    } @empty {
+      <p>No element.</p>
+    }
+    <mat-paginator
+      class="paginator"
+      [length]="count()"
+      [pageIndex]="page()"
+      [pageSize]="size()"
+      [pageSizeOptions]="[5, 10, 15, 20]"
+      aria-label="Select page"
+      (page)="onPage($event)"
+    >
+    </mat-paginator>
+  }
+</main>

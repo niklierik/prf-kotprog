@@ -1,0 +1,21 @@
+<form (ngSubmit)="uploadFile()">
+  <div>
+    <button mat-button (click)="fileInput.click()">Choose file</button>
+    {{ selectedFile() == null ? 'No file was selected' : selectedFile()?.name }}
+    <input
+      hidden
+      type="file"
+      #fileInput
+      id="file"
+      [accept]="accept"
+      (change)="onFileChange($event)"
+    />
+  </div>
+  <button
+    type="submit"
+    mat-flat-button
+    [disabled]="selectedFile() == null || disabled"
+  >
+    Upload File
+  </button>
+</form>

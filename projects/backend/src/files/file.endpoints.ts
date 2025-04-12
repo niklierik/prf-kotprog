@@ -71,23 +71,31 @@ async function listUserFiles(req: Request, res: Response): Promise<void> {
 
   const user = req.user!._id;
 
-  const files = await File.find({
-    author: user,
-  })
-    .select('-data')
+  const baseQuery = File.find({
+    owner: user,
+  }).select('-data');
+
+  const filesResponse = await baseQuery
+    .clone()
     .skip(page * size)
     .limit(size)
     .lean();
 
+  const count = await baseQuery.countDocuments();
+
+  const files = filesResponse.map((file) => ({
+    name: file.name,
+    createdAt: file.createdAt.toISOString(),
+    updatedAt: file.updatedAt.toISOString(),
+    id: file._id.toHexString(),
+    mimeType: file.mimeType,
+    owner: file.owner,
+    size: file.size,
+  }));
+
   const response: ListUserFilesResponse = {
-    files: files.map((file) => ({
-      createdAt: file.createdAt.toISOString(),
-      updatedAt: file.updatedAt.toISOString(),
-      id: file._id.toHexString(),
-      mimeType: file.mimeType,
-      owner: file.owner,
-      size: file.size,
-    })),
+    files,
+    count,
   };
 
   res.setHeader('Content-Type', 'application/json');
@@ -105,6 +113,7 @@ async function readFileInfo(req: Request, res: Response): Promise<void> {
 
   const response: ReadFileInfoResponse = {
     id,
+    name: info.name,
     createdAt: info.createdAt.toUTCString(),
     updatedAt: info.updatedAt.toUTCString(),
     mimeType: info.mimeType,
@@ -181,7 +190,7 @@ export function createOpenBinaryRoutes(): Router {
 export function createWriterBinaryRoutes(): Router {
   const router = Router();
   router.use(createAuthMiddleware(PermissionLevel.WRITER));
-  router.use(raw());
+  router.use(raw({ type: 'image/*', limit: '8mb' }));
 
   router.patch('/:id', changeFile);
   router.post('/', createFile);

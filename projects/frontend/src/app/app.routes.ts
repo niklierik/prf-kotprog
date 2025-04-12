@@ -10,6 +10,7 @@ import { CreateArticleComponent } from './pages/compose/create-article/create-ar
 import { EditArticleComponent } from './pages/compose/edit-article/edit-article.component';
 import { PermissionLevel } from '@kotprog/common';
 import { SettingsComponent } from './pages/settings/settings.component';
+import { GalleryComponent } from './pages/gallery/gallery.component';
 
 export const routes: Routes = [
   {
@@ -50,6 +51,10 @@ export const routes: Routes = [
   {
     path: 'settings',
     component: SettingsComponent,
+  },
+  {
+    path: 'gallery',
+    component: GalleryComponent,
   },
   {
     path: '**',

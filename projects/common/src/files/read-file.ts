@@ -9,6 +9,7 @@ export type ListUserFilesRequest = InferType<typeof listUserFilesRequestSchema>;
 
 export interface ReadFileInfoResponse {
   id: string;
+  name: string;
   mimeType: string;
   owner: string;
   createdAt: string;
@@ -18,4 +19,5 @@ export interface ReadFileInfoResponse {
 
 export interface ListUserFilesResponse {
   files: ReadFileInfoResponse[];
+  count: number;
 }
