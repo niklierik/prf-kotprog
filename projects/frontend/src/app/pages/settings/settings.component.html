@@ -2,23 +2,27 @@
 <mat-card class="card">
   <mat-card-content>
     <div class="card-content">
-      @if (user()) {
+      <div class="avatar">
         <app-author [author]="user()!"></app-author>
-      }
 
-      <button
-        class="button"
-        type="submit"
-        mat-raised-button
-        [disabled]="loading()"
-        (click)="uploadAvatar()"
-      >
-        Upload avatar
-      </button>
+        <hr />
+        <h2>Upload avatar</h2>
 
-      @if (error()) {
-        <p class="error-text">{{ error() }}</p>
-      }
+        <app-file-upload
+          [disabled]="loading()"
+          accept="image/*"
+          (upload)="uploadAvatar($event)"
+        >
+        </app-file-upload>
+        <button
+          mat-button
+          class="danger"
+          (click)="deleteAvatar()"
+          [disabled]="loading()"
+        >
+          Delete avatar
+        </button>
+      </div>
     </div>
   </mat-card-content>
 </mat-card>

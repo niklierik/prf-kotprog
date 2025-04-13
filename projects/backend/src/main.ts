@@ -11,6 +11,7 @@ import { articleRouter } from './articles/article.endpoints.js';
 import { fileRouter } from './files/file.endpoints.js';
 import { seedSuperAdmin } from './users/user.entity.js';
 import { seedDb, shouldSeedDb } from './seed-db.js';
+import { userRouter } from './users/user.endpoints.js';
 
 await connectToDb();
 
@@ -26,6 +27,7 @@ await seedSuperAdmin();
 // we don't want to use json() parser in every route, so we register the /api/file endpoint separately
 app.use('/api/file', fileRouter);
 app.use('/api/article', articleRouter);
+app.use('/api/user', userRouter);
 
 const apiRouter = Router();
 

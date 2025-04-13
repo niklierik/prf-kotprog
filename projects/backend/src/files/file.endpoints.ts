@@ -13,6 +13,7 @@ import { PermissionError } from '../errors/permission-error.js';
 import { createAuthMiddleware } from '../users/auth.middleware.js';
 import { PermissionLevel } from '@kotprog/common';
 import { NotFoundError } from '../errors/not-found-error.js';
+import fs from 'fs/promises';
 
 const fileRouter = Router();
 
@@ -64,6 +65,17 @@ async function readFile(req: Request, res: Response): Promise<void> {
 
   res.status(200);
   res.send(info.data.buffer);
+}
+
+export async function readDefault(req: Request, res: Response): Promise<void> {
+  const contentType = 'image/jpg';
+
+  const file = await fs.readFile('./assets/default-profile-photo.jpg');
+
+  res.setHeader('Content-Type', contentType);
+
+  res.status(200);
+  res.send(file);
 }
 
 async function listUserFiles(req: Request, res: Response): Promise<void> {
@@ -182,6 +194,7 @@ export function createOpenBinaryRoutes(): Router {
   const router = Router();
 
   router.use(raw());
+  router.get('/default', readDefault);
   router.get('/:id', readFile);
 
   return router;

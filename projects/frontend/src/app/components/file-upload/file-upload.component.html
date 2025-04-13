@@ -1,7 +1,11 @@
 <form (ngSubmit)="uploadFile()">
   <div>
     <button mat-button (click)="fileInput.click()">Choose file</button>
-    {{ selectedFile() == null ? 'No file was selected' : selectedFile()?.name }}
+    <span class="text noselect" (click)="fileInput.click()">
+      {{
+        selectedFile() == null ? 'No file was selected' : selectedFile()?.name
+      }}
+    </span>
     <input
       hidden
       type="file"

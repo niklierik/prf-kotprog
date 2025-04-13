@@ -1,8 +1,7 @@
 <button class="hidden" (click)="onClick()">
   <div class="author-info">
-    @if (author.avatar) {
-      <img [src]="author.avatar" />
-    }
+    <img [src]="'/api/user/' + author.id + '/avatar'" />
+
     <p>{{ author.name }}</p>
   </div>
 </button>

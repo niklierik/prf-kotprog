@@ -51,10 +51,12 @@ export const routes: Routes = [
   {
     path: 'settings',
     component: SettingsComponent,
+    canActivate: [hasPermissionGuard(PermissionLevel.USER)],
   },
   {
     path: 'gallery',
     component: GalleryComponent,
+    canActivate: [hasPermissionGuard(PermissionLevel.WRITER)],
   },
   {
     path: '**',
