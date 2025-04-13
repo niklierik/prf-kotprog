@@ -1,0 +1,16 @@
+<main>
+  <h1>Labels</h1>
+
+  @for (label of labelsResource.value(); track label.id) {
+    <app-label-element
+      [label]="label"
+      (submit)="edit($event)"
+      (delete)="deleteLabel($event)"
+    >
+    </app-label-element>
+  }
+
+  <h2>Create new label</h2>
+
+  <app-edit-label (submit)="create($event)"></app-edit-label>
+</main>

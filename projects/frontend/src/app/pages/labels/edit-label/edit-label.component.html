@@ -1,0 +1,37 @@
+<form (ngSubmit)="onSubmit()" class="create-label-form">
+  <div class="row">
+    <mat-form-field>
+      <mat-label>Name</mat-label>
+      <input type="text" matInput [formControl]="nameControl" />
+    </mat-form-field>
+
+    <div class="column">
+      <button mat-raised-button (click)="backgroundColorPicker.openDialog()">
+        Background color
+      </button>
+      <input
+        [colorPicker]="backgroundColor()"
+        (colorPickerChange)="backgroundColor.set($event)"
+        class="hide"
+        #backgroundColorPicker="ngxColorPicker"
+      />
+
+      <button mat-raised-button (click)="textColorPicker.openDialog()">
+        Text color
+      </button>
+      <input
+        [colorPicker]="textColor()"
+        (colorPickerChange)="textColor.set($event)"
+        class="hide"
+        #textColorPicker="ngxColorPicker"
+      />
+    </div>
+  </div>
+  <app-label [label]="internalLabel()" [isLink]="false"></app-label>
+  <button mat-button type="submit">Save label</button>
+  @if (showDelete) {
+    <button mat-flat-button class="danger" type="button" (click)="onDelete()">
+      Delete
+    </button>
+  }
+</form>

@@ -1,0 +1,24 @@
+<mat-expansion-panel hideToggle>
+  <mat-expansion-panel-header
+    [ngStyle]="{
+      'background-color': label.backgroundColor,
+      color: label.textColor,
+    }"
+  >
+    <mat-panel-title [ngStyle]="{ color: label.textColor }">
+      {{ label.name }}
+    </mat-panel-title>
+    <mat-panel-description [ngStyle]="{ color: label.textColor }">
+      Click here to edit label
+    </mat-panel-description>
+  </mat-expansion-panel-header>
+
+  <h2>Edit label</h2>
+
+  <app-edit-label
+    (submit)="submit.emit($event)"
+    [label]="label"
+    [showDelete]="true"
+    (delete)="delete.emit($event)"
+  ></app-edit-label>
+</mat-expansion-panel>

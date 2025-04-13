@@ -7035,6 +7035,13 @@ neo-async@^2.6.2:
   resolved "https://registry.npmjs.org/neo-async/-/neo-async-2.6.2.tgz"
   integrity sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==
 
+ngx-color-picker@^19.0.0:
+  version "19.0.0"
+  resolved "https://registry.yarnpkg.com/ngx-color-picker/-/ngx-color-picker-19.0.0.tgz#1084c332b7a7e9c8e2aae0e06e88c0f2bbedde25"
+  integrity sha512-jZs7nk/DJB6FryElYnfkojWYCgpEc650s800g+39ebocVMZ18fAHf/CQd5+Bdm4E3zoRod0a0sErJ+c8tGQcCg==
+  dependencies:
+    tslib "^2.3.0"
+
 ngx-markdown@^19.1.0:
   version "19.1.0"
   resolved "https://registry.yarnpkg.com/ngx-markdown/-/ngx-markdown-19.1.0.tgz#af69fe456aab5fadc3c43319addea4e48721701a"

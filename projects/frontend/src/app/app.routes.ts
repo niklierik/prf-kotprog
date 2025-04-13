@@ -11,6 +11,7 @@ import { EditArticleComponent } from './pages/compose/edit-article/edit-article.
 import { PermissionLevel } from '@kotprog/common';
 import { SettingsComponent } from './pages/settings/settings.component';
 import { GalleryComponent } from './pages/gallery/gallery.component';
+import { LabelsComponent } from './pages/labels/labels.component';
 
 export const routes: Routes = [
   {
@@ -57,6 +58,11 @@ export const routes: Routes = [
     path: 'gallery',
     component: GalleryComponent,
     canActivate: [hasPermissionGuard(PermissionLevel.WRITER)],
+  },
+  {
+    path: 'labels',
+    component: LabelsComponent,
+    canActivate: [hasPermissionGuard(PermissionLevel.ADMIN)],
   },
   {
     path: '**',

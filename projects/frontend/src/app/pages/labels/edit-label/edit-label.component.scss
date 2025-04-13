@@ -1,0 +1,32 @@
+button {
+  margin: 5px;
+}
+
+.create-label-form {
+  padding: 20px;
+}
+
+.row {
+  display: flex;
+  flex-flow: row;
+  justify-items: center;
+  align-items: center;
+}
+
+.column {
+  display: flex;
+  flex-flow: column;
+
+  justify-items: stretch;
+  align-items: stretch;
+}
+
+.hide {
+  height: 0px;
+  opacity: 0;
+}
+
+.danger {
+  background-color: crimson;
+  color: white;
+}

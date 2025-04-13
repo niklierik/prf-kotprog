@@ -1,14 +1,14 @@
 import { InferType, object, string } from 'yup';
 
-export const createLabelRequestSchema = object({
+export const updateLabelRequestSchema = object({
   name: string().required(),
   backgroundColor: string().required(),
   textColor: string().required(),
 });
 
-export type CreateLabelRequest = InferType<typeof createLabelRequestSchema>;
+export type UpdateLabelRequest = InferType<typeof updateLabelRequestSchema>;
 
-export interface CreateLabelResponse {
+export interface UpdateLabelResponse {
   id: string;
   name: string;
   backgroundColor: string;

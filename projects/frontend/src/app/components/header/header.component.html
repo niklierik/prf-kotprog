@@ -38,10 +38,13 @@
         Create article
         <mat-icon fontIcon="edit"></mat-icon>
       </button>
-    }
-    @if (permissionLevel() >= PermissionLevel.ADMIN) {
       <button mat-menu-item routerLink="/gallery">
         Gallery <mat-icon fontIcon="images"></mat-icon>
+      </button>
+    }
+    @if (permissionLevel() >= PermissionLevel.ADMIN) {
+      <button mat-menu-item routerLink="/labels">
+        Labels <mat-icon fontIcon="label"></mat-icon>
       </button>
     }
     <button mat-menu-item routerLink="/settings">
