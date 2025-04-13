@@ -1,23 +1,62 @@
 import { raw, Request, Response, Router } from 'express';
 import { createAuthMiddleware } from './auth.middleware.js';
-import { PermissionLevel } from '@kotprog/common';
+import {
+  listUsersRequestSchema,
+  ListUsersResponse,
+  PermissionLevel,
+} from '@kotprog/common';
 import { NotFoundError } from '../errors/not-found-error.js';
 import { ObjectId } from 'mongodb';
 import { File } from '../files/file.entity.js';
 import { User } from './user.entity.js';
 import { readDefault } from '../files/file.endpoints.js';
-import { HttpError } from '../errors/http-error.js';
 import { PermissionError } from '../errors/permission-error.js';
 const userRouter = Router();
 
 async function readUser(req: Request, res: Response): Promise<void> {
+  const id = req.params['id'];
+  if (!id) {
+    throw new NotFoundError(id, 'User');
+  }
+
   res.status(200);
   res.send();
 }
 
 async function list(req: Request, res: Response): Promise<void> {
+  const { minPermissionLevel, page, size } =
+    await listUsersRequestSchema.validate(req.query);
+
+  const skip = (page ?? 0) * (size ?? 0);
+  const limit = size;
+
+  let filter = {};
+
+  if (minPermissionLevel != null) {
+    filter = {
+      permissionLevel: { $gte: minPermissionLevel },
+    };
+  }
+
+  let baseQuery = User.find(filter);
+  const count = await baseQuery.clone().countDocuments();
+
+  if (limit != null) {
+    baseQuery = baseQuery.skip(skip).limit(limit);
+  }
+
+  const users = await baseQuery.clone().lean();
+
+  const response: ListUsersResponse = {
+    users: users.map((user) => ({
+      id: user._id,
+      name: user.name || user._id,
+    })),
+    count,
+  };
+
   res.status(200);
-  res.send();
+  res.send(response);
 }
 
 async function deleteUser(req: Request, res: Response): Promise<void> {

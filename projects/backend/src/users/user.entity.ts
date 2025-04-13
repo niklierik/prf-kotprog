@@ -49,16 +49,3 @@ export async function seedSuperAdmin(): Promise<void> {
     throw e;
   }
 }
-
-export function findAvatar(
-  user?: User,
-  urlBase: string = '',
-): string | undefined {
-  const profilePictureId = user?.profilePicture?.toHexString();
-
-  if (!profilePictureId) {
-    return undefined;
-  }
-
-  return `${urlBase}/api/file/${profilePictureId}`;
-}

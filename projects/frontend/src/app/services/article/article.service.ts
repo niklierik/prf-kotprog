@@ -206,6 +206,19 @@ export class ArticleService {
     });
   }
 
+  public async changeAuthor(
+    articleId: string,
+    authorId: string,
+  ): Promise<void> {
+    await this.fetchService.fetch(
+      `/api/article/${articleId}/author/${encodeURI(authorId)}`,
+      {
+        method: 'PATCH',
+      },
+      () => {},
+    );
+  }
+
   public async addLabel(articleId: string, labelId: string): Promise<void> {
     await this.fetchService.fetch(
       `/api/article/${articleId}/labels/${labelId}`,

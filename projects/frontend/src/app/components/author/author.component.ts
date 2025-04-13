@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { UserInfo } from './user-info.model';
 import { Router, RouterModule } from '@angular/router';
+import { UserInfo } from '@kotprog/common';
 
 @Component({
   selector: 'app-author',

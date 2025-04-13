@@ -16,7 +16,7 @@ import {
   updateArticleVisibilityRequestSchema,
 } from '@kotprog/common';
 import { ObjectId } from 'mongodb';
-import { findAvatar, User } from '../users/user.entity.js';
+import { User } from '../users/user.entity.js';
 import { Label } from '../labels/label.entity.js';
 import { createAuthMiddleware } from '../users/auth.middleware.js';
 import { PermissionLevel } from '@kotprog/common';
@@ -92,7 +92,6 @@ async function getArticleById(req: Request, res: Response): Promise<void> {
     author: {
       id: article.author._id,
       name: article.author.name ?? '',
-      avatar: findAvatar(article.author),
     },
     labels: article.labels.map((label) => ({
       id: label._id.toHexString(),
@@ -186,7 +185,6 @@ async function getArticles(req: Request, res: Response): Promise<void> {
       author: {
         id: article.author._id,
         name: article.author.name ?? '',
-        avatar: findAvatar(article.author),
       },
       createdAt: article.createdAt.toISOString(),
       labels: article.labels.map((label) => ({
@@ -231,6 +229,48 @@ async function updateArticleTitle(req: Request, res: Response): Promise<void> {
   await article.updateOne({
     title,
   });
+
+  res.status(200);
+  res.send();
+}
+
+async function updateArticleAuthor(req: Request, res: Response): Promise<void> {
+  const { articleId, authorId } = req.params;
+
+  const user = req.user!;
+
+  if (user.permissionLevel < PermissionLevel.ADMIN) {
+    throw new PermissionError();
+  }
+
+  if (!articleId) {
+    throw new HttpError(400, 'Missing article id.');
+  }
+
+  if (!authorId) {
+    throw new HttpError(400, 'Missing author id.');
+  }
+
+  const author = await User.findById(authorId).lean();
+  if (!author) {
+    throw new NotFoundError(authorId, 'User');
+  }
+
+  const permissionLevel = author.permissionLevel;
+  if (permissionLevel < PermissionLevel.WRITER) {
+    throw new HttpError(400, 'Author needs to be at least a writer.');
+  }
+
+  const article = await Article.findById(new ObjectId(articleId)).lean();
+  if (!article) {
+    throw new NotFoundError(articleId, 'Article');
+  }
+  await Article.updateOne(
+    { _id: new ObjectId(articleId) },
+    {
+      author: authorId,
+    },
+  );
 
   res.status(200);
   res.send();
@@ -420,6 +460,7 @@ function createWriterJsonEndpoints(): Router {
 
   router.post('/', createArticle);
   router.patch('/:id/title', updateArticleTitle);
+  router.patch('/:articleId/author/:authorId', updateArticleAuthor);
   router.delete('/:id', deleteArticle);
   router.post('/:articleId/labels/:labelId', addLabel);
   router.delete('/:articleId/labels/:labelId', removeLabel);

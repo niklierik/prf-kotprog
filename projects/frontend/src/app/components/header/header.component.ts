@@ -4,8 +4,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { AuthService } from '../../services/auth/auth.service';
 import { AuthorComponent } from '../author/author.component';
-import { UserInfo } from '../author/user-info.model';
-import { Label, PermissionLevel } from '@kotprog/common';
+import { Label, PermissionLevel, UserInfo } from '@kotprog/common';
 import { LabelService } from '../../services/labels/label.service';
 import { LabelComponent } from '../label/label.component';
 import { MatIconModule } from '@angular/material/icon';
@@ -48,7 +47,6 @@ export class HeaderComponent {
 
       return {
         id: payload.email,
-        avatar: payload.avatar ?? undefined,
         name: payload.name || '',
       };
     });

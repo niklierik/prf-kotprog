@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { FetchService } from '../fetch.service';
 import { AuthService } from '../auth/auth.service';
+import { ListUsersRequest, ListUsersResponse } from '@kotprog/common';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
@@ -8,6 +9,31 @@ export class UserService {
     private readonly fetchService: FetchService,
     private readonly authService: AuthService,
   ) {}
+
+  public async getUsers({
+    minPermissionLevel,
+    page,
+    size,
+  }: ListUsersRequest): Promise<ListUsersResponse> {
+    const urlSearchParams = new URLSearchParams();
+    if (minPermissionLevel != null) {
+      urlSearchParams.append('minPermissionLevel', String(minPermissionLevel));
+    }
+    if (page != null) {
+      urlSearchParams.append('page', String(page));
+    }
+
+    if (size != null) {
+      urlSearchParams.append('size', String(size));
+    }
+
+    return await this.fetchService.fetch<ListUsersResponse>(
+      `/api/user?${urlSearchParams}`,
+      {
+        method: 'GET',
+      },
+    );
+  }
 
   public async updateAvatar(file: File): Promise<void> {
     const payload = this.authService.payload();
@@ -18,7 +44,7 @@ export class UserService {
     const id = payload.email;
 
     await this.fetchService.fetch(
-      `/api/user/${id}/avatar`,
+      `/api/user/${encodeURIComponent(id)}/avatar`,
       {
         method: 'POST',
         body: file,
@@ -39,7 +65,7 @@ export class UserService {
     const id = payload.email;
 
     await this.fetchService.fetch(
-      `/api/user/${id}/avatar`,
+      `/api/user/${encodeURIComponent(id)}/avatar`,
       {
         method: 'DELETE',
       },

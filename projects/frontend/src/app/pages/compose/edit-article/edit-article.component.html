@@ -55,6 +55,11 @@
       @if (author()) {
         <app-author [author]="author()!"></app-author>
       }
+      @if (isUserAdmin()) {
+        <button mat-raised-button [mat-menu-trigger-for]="changeAuthorMenu">
+          Change Author
+        </button>
+      }
       <button class="button" mat-raised-button (click)="onSave()">
         Save (Ctrl + S)
       </button>
@@ -121,6 +126,17 @@
           #{{ label.name }}
         </button>
       }
+    }
+  </ng-template>
+</mat-menu>
+
+<mat-menu #changeAuthorMenu>
+  <ng-template matMenuContent>
+    @for (user of userResource.value(); track user.id) {
+      <button mat-menu-item (click)="changeAuthor(user.id)">
+        <img [src]="'/api/user/' + user.id + '/avatar'" width="24px" />
+        {{ user.name }}
+      </button>
     }
   </ng-template>
 </mat-menu>

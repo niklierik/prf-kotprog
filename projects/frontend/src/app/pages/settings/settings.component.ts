@@ -1,8 +1,6 @@
 import {
   Component,
   computed,
-  resource,
-  Resource,
   signal,
   Signal,
   WritableSignal,
@@ -14,7 +12,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { AuthorComponent } from '../../components/author/author.component';
-import { UserInfo } from '@kotprog/common/build/src/auth/user-info';
+import { UserInfo } from '@kotprog/common';
 import { AuthService } from '../../services/auth/auth.service';
 import { FileUploadComponent } from '../../components/file-upload/file-upload.component';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -56,7 +54,6 @@ export class SettingsComponent {
       }
 
       return {
-        avatar: payload.avatar || '',
         id: payload.email,
         name: payload.name,
       };

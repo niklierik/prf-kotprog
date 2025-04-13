@@ -20,13 +20,14 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { ArticleInfo, Label } from '@kotprog/common';
+import { ArticleInfo, Label, PermissionLevel, UserInfo } from '@kotprog/common';
 import { AuthorComponent } from '../../../components/author/author.component';
-import { UserInfo } from '../../../components/author/user-info.model';
 import { LabelComponent } from '../../../components/label/label.component';
 import { MatIconModule } from '@angular/material/icon';
 import { LabelService } from '../../../services/labels/label.service';
 import { MatMenuModule } from '@angular/material/menu';
+import { AuthService } from '../../../services/auth/auth.service';
+import { UserService } from '../../../services/user/user.service';
 
 @Component({
   selector: 'app-edit-article',
@@ -58,6 +59,7 @@ export class EditArticleComponent {
   public readonly infoResource: Resource<ArticleInfo | undefined>;
   public readonly contentResource: Resource<string | undefined>;
   public readonly listLabelsResource: Resource<Label[] | undefined>;
+  public readonly userResource: Resource<UserInfo[] | undefined>;
 
   public readonly isClosedArticle: Signal<boolean>;
   public readonly isVisible: Signal<boolean>;
@@ -66,6 +68,8 @@ export class EditArticleComponent {
 
   public readonly author: Signal<UserInfo | undefined>;
   public readonly labels: WritableSignal<Label[]>;
+
+  public readonly isUserAdmin: Signal<boolean>;
 
   public title: string = '';
 
@@ -83,8 +87,10 @@ export class EditArticleComponent {
     private readonly articleService: ArticleService,
     private readonly snackbar: MatSnackBar,
     private readonly router: Router,
+    authService: AuthService,
     activatedRoute: ActivatedRoute,
     labelService: LabelService,
+    userService: UserService,
   ) {
     const params = toSignal(activatedRoute.params, {
       initialValue: {},
@@ -139,6 +145,16 @@ export class EditArticleComponent {
       },
     });
 
+    this.userResource = resource({
+      loader: async () => {
+        const users = await userService.getUsers({
+          minPermissionLevel: PermissionLevel.WRITER,
+        });
+
+        return users?.users ?? [];
+      },
+    });
+
     this.uploading = signal(false);
 
     this.author = computed(
@@ -153,6 +169,15 @@ export class EditArticleComponent {
     );
 
     this.listLabelsResource = labelService.listLabelsResource();
+
+    this.isUserAdmin = computed(() => {
+      const permissionLevel = authService.payload()?.permissionLevel;
+      if (permissionLevel == null) {
+        return false;
+      }
+
+      return permissionLevel >= PermissionLevel.ADMIN;
+    });
   }
 
   @HostListener('document:keydown.control.s', ['$event'])
@@ -270,6 +295,25 @@ export class EditArticleComponent {
     } catch (error) {
       console.error(error);
       this.snackbar.open("Failed to update article's visibility.", 'Close');
+    }
+  }
+
+  public async changeAuthor(authorId: string): Promise<void> {
+    try {
+      const articleId = this.id();
+      if (!articleId) {
+        return;
+      }
+
+      this.uploading.set(true);
+
+      await this.articleService.changeAuthor(articleId, authorId);
+      this.infoResource.reload();
+      this.snackbar.open('Author updated.', 'Ok');
+    } catch (error) {
+      this.snackbar.open(String(error), 'Close');
+    } finally {
+      this.uploading.set(false);
     }
   }
 

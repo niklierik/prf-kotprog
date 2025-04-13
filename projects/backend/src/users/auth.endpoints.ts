@@ -6,7 +6,7 @@ import {
   authLoginRequestSchema,
   authRegisterRequestSchema,
 } from '@kotprog/common';
-import { findAvatar, User } from './user.entity.js';
+import { User } from './user.entity.js';
 import bcrypt from 'bcryptjs';
 import { HttpError } from '../errors/http-error.js';
 import { config } from '../config/config.js';
@@ -55,7 +55,6 @@ async function login(req: Request, res: Response): Promise<void> {
   const payload: TokenPayload = {
     email,
     name: user.name || '',
-    avatar: findAvatar(user),
     permissionLevel: user.permissionLevel,
   };
 
