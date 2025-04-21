@@ -15,4 +15,5 @@ export type ListUsersRequest = InferType<typeof listUsersRequestSchema>;
 export interface ListUsersResponse {
   users: UserInfo[];
   count: number;
+  permissionLevel?: PermissionLevel;
 }

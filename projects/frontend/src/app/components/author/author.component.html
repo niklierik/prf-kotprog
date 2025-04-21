@@ -1,7 +1,15 @@
-<button class="hidden" (click)="onClick()">
+@if (clickable) {
+  <button class="hidden" (click)="onClick()">
+    <ng-container [ngTemplateOutlet]="authorInfo"> </ng-container>
+  </button>
+} @else {
+  <ng-container [ngTemplateOutlet]="authorInfo"> </ng-container>
+}
+
+<ng-template #authorInfo>
   <div class="author-info">
     <img [src]="'/api/user/' + author.id + '/avatar'" />
 
     <p>{{ author.name }}</p>
   </div>
-</button>
+</ng-template>

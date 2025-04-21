@@ -12,6 +12,7 @@ import { PermissionLevel } from '@kotprog/common';
 import { SettingsComponent } from './pages/settings/settings.component';
 import { GalleryComponent } from './pages/gallery/gallery.component';
 import { LabelsComponent } from './pages/labels/labels.component';
+import { UsersComponent } from './pages/users/users.component';
 
 export const routes: Routes = [
   {
@@ -62,6 +63,11 @@ export const routes: Routes = [
   {
     path: 'labels',
     component: LabelsComponent,
+    canActivate: [hasPermissionGuard(PermissionLevel.ADMIN)],
+  },
+  {
+    path: 'users',
+    component: UsersComponent,
     canActivate: [hasPermissionGuard(PermissionLevel.ADMIN)],
   },
   {

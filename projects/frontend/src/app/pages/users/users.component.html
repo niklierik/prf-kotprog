@@ -1,0 +1,33 @@
+@if (usersResource.isLoading()) {
+  <mat-spinner></mat-spinner>
+} @else if (usersResource.error()) {
+  <p>{{ usersResource.error() }}</p>
+} @else {
+  <div class="users">
+    @for (user of users(); track user.id) {
+      <div class="user-info">
+        <app-author [author]="user" [clickable]="false"></app-author>
+      </div>
+
+      <mat-form-field>
+        <mat-label>Permission Level</mat-label>
+        <mat-select
+          [value]="user.permissionLevel"
+          [disabled]="
+            user.permissionLevel! >= currentPermissionLevel() || isLoading()
+          "
+          (selectionChange)="updatePermissionLevel(user.id, $event)"
+        >
+          @for (
+            permissionLevel of permissionLevels;
+            track permissionLevel.value
+          ) {
+            <mat-option [value]="permissionLevel.value">
+              {{ permissionLevel.name }}
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    }
+  </div>
+}

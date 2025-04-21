@@ -1,9 +1,10 @@
-import { raw, Request, Response, Router } from 'express';
+import { json, raw, Request, Response, Router } from 'express';
 import { createAuthMiddleware } from './auth.middleware.js';
 import {
   listUsersRequestSchema,
   ListUsersResponse,
   PermissionLevel,
+  updatePermissionLevelRequestSchema,
 } from '@kotprog/common';
 import { NotFoundError } from '../errors/not-found-error.js';
 import { ObjectId } from 'mongodb';
@@ -11,6 +12,7 @@ import { File } from '../files/file.entity.js';
 import { User } from './user.entity.js';
 import { readDefault } from '../files/file.endpoints.js';
 import { PermissionError } from '../errors/permission-error.js';
+import { HttpError } from '../errors/http-error.js';
 const userRouter = Router();
 
 async function readUser(req: Request, res: Response): Promise<void> {
@@ -41,6 +43,8 @@ async function list(req: Request, res: Response): Promise<void> {
   let baseQuery = User.find(filter);
   const count = await baseQuery.clone().countDocuments();
 
+  const loggedInUser = req.user;
+
   if (limit != null) {
     baseQuery = baseQuery.skip(skip).limit(limit);
   }
@@ -51,6 +55,10 @@ async function list(req: Request, res: Response): Promise<void> {
     users: users.map((user) => ({
       id: user._id,
       name: user.name || user._id,
+      permissionLevel:
+        loggedInUser && loggedInUser.permissionLevel >= PermissionLevel.ADMIN
+          ? user.permissionLevel
+          : undefined,
     })),
     count,
   };
@@ -182,6 +190,28 @@ async function deleteAvatar(req: Request, res: Response): Promise<void> {
   res.send();
 }
 
+async function updatePermissionLevel(
+  req: Request,
+  res: Response,
+): Promise<void> {
+  const { permissionLevel } = await updatePermissionLevelRequestSchema.validate(
+    req.body,
+  );
+
+  const { id } = req.params;
+  if (!id) {
+    throw new HttpError(400, 'UserId is a required parameter.');
+  }
+
+  const user = await User.findByIdAndUpdate(id, { permissionLevel });
+
+  if (!user) {
+    throw new NotFoundError(id, 'User');
+  }
+
+  res.status(200).send({});
+}
+
 function createAvatarModificationEndpoints(): Router {
   const router = Router();
 
@@ -194,12 +224,32 @@ function createAvatarModificationEndpoints(): Router {
   return router;
 }
 
+function createUserListEndpoint(): Router {
+  const router = Router();
+  router.use(createAuthMiddleware(PermissionLevel.USER, true));
+
+  router.get('/', list);
+
+  return router;
+}
+
+function createAdminEndpoints(): Router {
+  const router = Router();
+  router.use(createAuthMiddleware(PermissionLevel.ADMIN));
+  router.use(json());
+
+  router.patch('/:id/permission-level', updatePermissionLevel);
+
+  return router;
+}
+
 userRouter.get('/:id/avatar', getAvatar);
 
 userRouter.get('/:id', readUser);
-userRouter.get('/', list);
 userRouter.delete('/:id', deleteUser);
 
 userRouter.use(createAvatarModificationEndpoints());
+userRouter.use(createUserListEndpoint());
+userRouter.use(createAdminEndpoints());
 
 export { userRouter };

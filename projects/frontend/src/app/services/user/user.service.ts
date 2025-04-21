@@ -1,7 +1,11 @@
 import { Injectable } from '@angular/core';
 import { FetchService } from '../fetch.service';
 import { AuthService } from '../auth/auth.service';
-import { ListUsersRequest, ListUsersResponse } from '@kotprog/common';
+import {
+  ListUsersRequest,
+  ListUsersResponse,
+  PermissionLevel,
+} from '@kotprog/common';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
@@ -68,6 +72,20 @@ export class UserService {
       `/api/user/${encodeURIComponent(id)}/avatar`,
       {
         method: 'DELETE',
+      },
+      () => {},
+    );
+  }
+
+  public async updatePermissionLevel(
+    id: string,
+    permissionLevel: PermissionLevel,
+  ): Promise<void> {
+    await this.fetchService.fetch(
+      `/api/user/${encodeURIComponent(id)}/permission-level`,
+      {
+        method: 'PATCH',
+        body: JSON.stringify({ permissionLevel }),
       },
       () => {},
     );
