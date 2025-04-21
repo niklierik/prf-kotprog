@@ -15,6 +15,7 @@ import { env } from 'process';
 import { existsSync } from 'fs';
 import { config } from './config/config.js';
 import bcrypt from 'bcryptjs';
+import { ObjectId } from 'mongodb';
 
 export async function shouldSeedDb(): Promise<boolean> {
   if (env['NODE_ENV'] === 'production') {
@@ -201,6 +202,7 @@ export async function seedDb(): Promise<void> {
       const commentUpdatedAt = createdAt;
 
       comments.push({
+        _id: new ObjectId(),
         author: email,
         text,
         createdAt: commentCreatedAt,

@@ -5,6 +5,7 @@ import {
   getArticlesCount,
   getScoredArticleList,
   OpenArticle,
+  Comment,
 } from './article.entity.js';
 import {
   CreateArticleResponseData,
@@ -14,6 +15,8 @@ import {
   updateArticleTitleRequestSchema,
   createArticleRequestSchema,
   updateArticleVisibilityRequestSchema,
+  ListCommentsResponse,
+  createCommentRequestSchema,
 } from '@kotprog/common';
 import { ObjectId } from 'mongodb';
 import { User } from '../users/user.entity.js';
@@ -26,6 +29,7 @@ import { text } from 'express';
 import { HttpError } from '../errors/http-error.js';
 import lodash from 'lodash';
 import { UnauthenticatedError } from '../errors/unauthenticated-error.js';
+import moment from 'moment';
 const { remove } = lodash;
 
 export type ScoredArticle = Omit<Article, 'labels' | 'author'> & {
@@ -429,6 +433,128 @@ async function removeLabel(req: Request, res: Response): Promise<void> {
   res.send({});
 }
 
+async function postComment(req: Request, res: Response): Promise<void> {
+  const { id } = req.params;
+
+  const { text } = await createCommentRequestSchema.validate(req.body);
+
+  if (!id) {
+    throw new HttpError(400, `Article ID is required.`);
+  }
+
+  const user = req.user!;
+
+  const comment = {
+    _id: new ObjectId(),
+    author: user._id!,
+    text,
+    createdAt: moment().utc().toDate(),
+  };
+
+  const article = await Article.findByIdAndUpdate(new ObjectId(id), {
+    $push: { comments: comment },
+  });
+
+  if (!article) {
+    throw new NotFoundError(id, 'Article');
+  }
+
+  res.status(201).send({});
+}
+
+async function getArticleComments(req: Request, res: Response): Promise<void> {
+  const { id } = req.params;
+  if (!id) {
+    throw new HttpError(400, `Article ID is required.`);
+  }
+
+  const article = await Article.findById(new ObjectId(id))
+    .select('comments')
+    .populate('comments.author')
+    .lean();
+
+  if (!article) {
+    throw new NotFoundError(id, 'Article');
+  }
+
+  const { comments } = article;
+
+  comments.sort((a, b) => {
+    const comment1 = a as unknown as Comment;
+    const comment2 = b as unknown as Comment;
+
+    return comment1.createdAt.getDate() - comment2.createdAt.getDate();
+  });
+
+  const response: ListCommentsResponse = {
+    comments: comments
+      .map((_comment) => {
+        try {
+          const comment = _comment as unknown as Comment;
+          const user = comment.author as unknown as User;
+
+          return {
+            id: comment._id.toHexString(),
+            content: comment.text,
+            createdAt: comment.createdAt.toISOString(),
+            user: {
+              id: user._id,
+              name: user.name || '',
+            },
+          };
+        } catch (error) {
+          console.error(error);
+          return undefined!;
+        }
+      })
+      .filter((comment) => Boolean(comment)),
+  };
+
+  res.status(200);
+  res.send(response);
+}
+
+async function deleteComment(req: Request, res: Response): Promise<void> {
+  const { articleId, commentId } = req.params;
+
+  if (!articleId) {
+    throw new HttpError(400, `Article ID is required.`);
+  }
+
+  if (!commentId) {
+    throw new HttpError(400, `Comment ID is required.`);
+  }
+
+  const user = req.user!;
+
+  const article = await Article.findById(new ObjectId(articleId));
+
+  if (!article) {
+    throw new NotFoundError(articleId, 'Article');
+  }
+
+  if (
+    user.permissionLevel < PermissionLevel.USER &&
+    article.author !== user._id
+  ) {
+    throw new PermissionError();
+  }
+
+  await Article.findByIdAndUpdate(
+    new ObjectId(articleId),
+    {
+      $pull: { comments: { _id: new ObjectId(commentId) } },
+    },
+    { upsert: false, multi: true },
+  );
+
+  if (!article) {
+    throw new NotFoundError(articleId, 'Article');
+  }
+
+  res.status(200).send({});
+}
+
 function createOpenJsonEndpoints(): Router {
   const router = Router();
 
@@ -437,6 +563,8 @@ function createOpenJsonEndpoints(): Router {
 
   router.get('/:id', getArticleById);
   router.get('/', getArticles);
+
+  router.get('/:id/comment', getArticleComments);
 
   return router;
 }
@@ -466,6 +594,8 @@ function createWriterJsonEndpoints(): Router {
   router.delete('/:articleId/labels/:labelId', removeLabel);
   router.patch('/:id/visibility', updateVisibility);
 
+  router.delete('/:articleId/comment/:commentId', deleteComment);
+
   return router;
 }
 
@@ -479,9 +609,21 @@ function createWriterTextEndpoints(): Router {
   return router;
 }
 
+function createUserEndpoints(): Router {
+  const router = Router();
+
+  router.use(json());
+  router.use(createAuthMiddleware(PermissionLevel.USER));
+
+  router.post('/:id/comment', postComment);
+
+  return router;
+}
+
 const articleRouter = Router();
 articleRouter.use(createOpenJsonEndpoints());
 articleRouter.use(createOpenTextEndpoints());
+articleRouter.use(createUserEndpoints());
 articleRouter.use(createWriterJsonEndpoints());
 articleRouter.use(createWriterTextEndpoints());
 

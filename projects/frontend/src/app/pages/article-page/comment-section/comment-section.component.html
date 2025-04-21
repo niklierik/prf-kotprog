@@ -1,0 +1,48 @@
+@if (commentsResource.isLoading()) {
+  <mat-progress-spinner></mat-progress-spinner>
+} @else if (commentsResource.error()) {
+  <p class="error-text">{{ commentsResource.error() }}</p>
+} @else {
+  <div class="comments">
+    <h2>Comments</h2>
+
+    @if (isLoggedIn()) {
+      <form (ngSubmit)="postComment()">
+        <mat-form-field>
+          <mat-label>Comment</mat-label>
+          <textarea matInput [formControl]="comment"></textarea>
+        </mat-form-field>
+        <button mat-button type="submit" [disabled]="comment.invalid">
+          Post
+        </button>
+      </form>
+
+      <hr />
+    }
+
+    @for (comment of commentsResource.value()?.comments; track comment.id) {
+      <mat-card>
+        <div class="comment-header">
+          <app-author [author]="comment.user"></app-author>
+          <p>
+            {{ comment.createdAt | distance }} ago ({{
+              comment.createdAt | date: 'medium'
+            }})
+          </p>
+          @if (canDeleteComments()) {
+            <button
+              mat-button
+              class="danger"
+              (click)="deleteComment(comment.id)"
+            >
+              <mat-icon fontIcon="delete"></mat-icon>
+              Delete
+            </button>
+          }
+        </div>
+
+        <p class="comment-text">{{ comment.content }}</p>
+      </mat-card>
+    }
+  </div>
+}

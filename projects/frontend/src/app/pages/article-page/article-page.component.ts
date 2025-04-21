@@ -1,11 +1,4 @@
-import {
-  Component,
-  computed,
-  effect,
-  Resource,
-  signal,
-  Signal,
-} from '@angular/core';
+import { Component, computed, effect, Resource, Signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { map } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -18,6 +11,7 @@ import { ArticlePageResources } from './article-page.resources';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../services/auth/auth.service';
+import { CommentSectionComponent } from './comment-section/comment-section.component';
 
 @Component({
   selector: 'app-article-page',
@@ -28,6 +22,7 @@ import { AuthService } from '../../services/auth/auth.service';
     MatButtonModule,
     MatIconModule,
     RouterModule,
+    CommentSectionComponent,
   ],
   templateUrl: './article-page.component.html',
   styleUrl: './article-page.component.scss',

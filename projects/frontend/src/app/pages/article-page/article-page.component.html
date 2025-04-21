@@ -1,24 +1,33 @@
-<div class="edit-btn-container">
-  @if (canEditArticle()) {
-    <button
-      mat-button
-      class="edit-btn"
-      [routerLink]="'/compose/' + articleId()"
-    >
-      Edit <mat-icon fontIcon="edit"></mat-icon>
-    </button>
-  }
-</div>
-<main class="page">
-  @if (data.isLoading() && info.isLoading()) {
-    <mat-progress-spinner></mat-progress-spinner>
-  } @else if (data.value() != null && info.value()) {
-    <app-article class="article" [data]="data.value()!" [info]="info.value()!">
-    </app-article>
-    <app-article-suggestion
-      class="article-suggestion"
-      [articles]="articles.value() ?? []"
-    >
-    </app-article-suggestion>
+<main>
+  <div class="edit-btn-container">
+    @if (canEditArticle()) {
+      <button
+        mat-button
+        class="edit-btn"
+        [routerLink]="'/compose/' + articleId()"
+      >
+        Edit <mat-icon fontIcon="edit"></mat-icon>
+      </button>
+    }
+  </div>
+  <div class="page">
+    @if (data.isLoading() && info.isLoading()) {
+      <mat-progress-spinner></mat-progress-spinner>
+    } @else if (data.value() != null && info.value()) {
+      <app-article
+        class="article"
+        [data]="data.value()!"
+        [info]="info.value()!"
+      >
+      </app-article>
+      <app-article-suggestion
+        class="article-suggestion"
+        [articles]="articles.value() ?? []"
+      >
+      </app-article-suggestion>
+    }
+  </div>
+  @if (info.value()) {
+    <app-comment-section [article]="info.value()!"> </app-comment-section>
   }
 </main>

@@ -10,10 +10,11 @@ export const commentSchema = new Schema(
   { timestamps: true },
 );
 export interface Comment {
+  _id: ObjectId;
   text: string;
   author: string;
-  createdAt: Date | string;
-  updatedAt: Date | string;
+  createdAt: NativeDate;
+  updatedAt: NativeDate;
 }
 
 const discriminatorKey = 'type';

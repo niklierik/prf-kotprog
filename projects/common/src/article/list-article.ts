@@ -1,5 +1,4 @@
 import { array, InferType, number, object, string } from 'yup';
-import { UserInfo } from '../auth/user-info.js';
 import { ArticleInfo } from './find-article.js';
 
 export const listArticlesRequestSchema = object({
@@ -22,12 +21,4 @@ export type ListArticlesRequest = InferType<typeof listArticlesRequestSchema>;
 export interface ListArticlesResponse {
   articles: ArticleInfo[];
   count: number;
-}
-
-export interface ListCommentsResponse {
-  comments: ListCommentElement[];
-}
-
-export interface ListCommentElement {
-  author: UserInfo;
 }

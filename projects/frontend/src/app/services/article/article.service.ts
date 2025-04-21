@@ -5,6 +5,7 @@ import {
   CreateArticleResponseData,
   ListArticlesRequest,
   ListArticlesResponse,
+  ListCommentsResponse,
   UpdateArticleTitleRequest,
   updateArticleVisibilityRequest,
 } from '@kotprog/common';
@@ -250,6 +251,33 @@ export class ArticleService {
       `/api/article/${id}`,
       { method: 'DELETE' },
       () => {},
+    );
+  }
+
+  public async createComment(articleId: string, text: string): Promise<void> {
+    return await this.fetchService.fetch(`api/article/${articleId}/comment`, {
+      method: 'POST',
+      body: JSON.stringify({ text }),
+    });
+  }
+
+  public async getCommentSection(
+    articleId: string,
+  ): Promise<ListCommentsResponse> {
+    return await this.fetchService.fetch(`api/article/${articleId}/comment`, {
+      method: 'GET',
+    });
+  }
+
+  public async deleteComment(
+    articleId: string,
+    commentId: string,
+  ): Promise<void> {
+    return await this.fetchService.fetch(
+      `api/article/${articleId}/comment/${commentId}`,
+      {
+        method: 'DELETE',
+      },
     );
   }
 }

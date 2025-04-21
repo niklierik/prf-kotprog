@@ -1,0 +1,47 @@
+:host {
+  display: block;
+}
+
+.comments {
+  margin: auto;
+  max-width: 40%;
+  padding: 20px;
+
+  mat-card {
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+
+  form {
+    width: 100%;
+
+    mat-form-field {
+      width: 100%;
+    }
+  }
+}
+
+.comment-header {
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+
+  * {
+    margin-left: 10px;
+    margin-right: 10px;
+  }
+}
+
+.comment-text {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  margin-left: 50px;
+  margin-right: 50px;
+
+  text-align: justify;
+}
+
+.danger {
+  background-color: crimson;
+  color: white;
+}
