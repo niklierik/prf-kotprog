@@ -16,8 +16,8 @@ export const userSchema = new Schema(
     permissionLevel: {
       type: Number,
       required: true,
-      default: 0,
-      min: 0,
+      default: PermissionLevel.USER,
+      min: PermissionLevel.USER,
       max: PermissionLevel.SUPERADMIN,
     },
   },

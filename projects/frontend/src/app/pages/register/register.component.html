@@ -1,1 +1,72 @@
-<p>register works!</p>
+<h1>Register</h1>
+<mat-card class="card">
+  <mat-card-content>
+    <form class="form" (ngSubmit)="register()">
+      <div class="field">
+        <mat-form-field>
+          <mat-label>E-mail</mat-label>
+          <input
+            matInput
+            type="email"
+            [formControl]="email"
+            [disabled]="isLoading()"
+          />
+        </mat-form-field>
+      </div>
+
+      <div class="field">
+        <mat-form-field>
+          <mat-label>Nickname</mat-label>
+          <input
+            matInput
+            type="text"
+            [formControl]="nickname"
+            [disabled]="isLoading()"
+          />
+        </mat-form-field>
+      </div>
+
+      <div class="field">
+        <mat-form-field>
+          <mat-label>Password</mat-label>
+          <input
+            type="password"
+            matInput
+            [formControl]="password"
+            [disabled]="isLoading()"
+          />
+        </mat-form-field>
+      </div>
+
+      <div class="field">
+        <mat-form-field>
+          <mat-label>Confirm password</mat-label>
+          <input
+            type="password"
+            matInput
+            [formControl]="passwordAgain"
+            [disabled]="isLoading()"
+          />
+        </mat-form-field>
+      </div>
+
+      <button
+        type="submit"
+        mat-raised-button
+        [disabled]="!email.valid || !password.valid"
+        [disabled]="
+          isLoading() ||
+          email.invalid ||
+          nickname.invalid ||
+          password.invalid ||
+          passwordAgain.invalid
+        "
+      >
+        Register
+      </button>
+      @if (error()) {
+        <p class="error-text">{{ error() }}</p>
+      }
+    </form>
+  </mat-card-content>
+</mat-card>

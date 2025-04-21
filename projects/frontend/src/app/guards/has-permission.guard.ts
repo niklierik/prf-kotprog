@@ -15,7 +15,7 @@ export function hasPermissionGuard(
       return router.createUrlTree(['login']);
     }
 
-    if (!payload.permissionLevel) {
+    if (payload.permissionLevel == null) {
       return router.createUrlTree(['home']);
     }
 

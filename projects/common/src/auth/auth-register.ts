@@ -2,6 +2,7 @@ import { InferType, object, string } from 'yup';
 
 export const authRegisterRequestSchema = object({
   email: string().email().required(),
+  nickname: string().required(),
   password: string().min(8).max(20).required(),
 });
 

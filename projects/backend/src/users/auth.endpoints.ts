@@ -19,15 +19,16 @@ import { PermissionError } from '../errors/permission-error.js';
 const { sign } = jwt;
 
 async function register(req: Request, res: Response): Promise<void> {
-  const { email, password } = await authRegisterRequestSchema.validate(
-    req.body ?? {},
-  );
+  const { email, nickname, password } =
+    await authRegisterRequestSchema.validate(req.body ?? {});
 
   const passwordHashed = await bcrypt.hash(password, config.auth.salt);
 
   const user = await User.create({
     _id: email,
+    name: nickname,
     password: passwordHashed,
+    permissionLevel: PermissionLevel.USER,
   });
 
   const response: AuthRegisterResponse = {

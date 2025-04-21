@@ -1,0 +1,21 @@
+h1 {
+  width: 100%;
+  text-align: center;
+}
+
+.card {
+  max-width: 20%;
+  margin: auto;
+}
+
+.form {
+  padding: 10px;
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+}
+
+.error-text {
+  color: red;
+  text-align: left;
+}

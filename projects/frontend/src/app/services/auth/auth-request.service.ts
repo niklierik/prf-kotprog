@@ -41,6 +41,11 @@ export class AuthRequestService {
     });
 
     const response = await result.json();
+
+    if (result.status === 409) {
+      throw new Error('E-mail is already in use.');
+    }
+
     if (result.status >= 400) {
       throw new Error(response?.message);
     }
