@@ -1,73 +1,87 @@
 import { Routes } from '@angular/router';
-import { HomeComponent } from './pages/home/home.component';
-import { LoginComponent } from './pages/login/login.component';
-import { RegisterComponent } from './pages/register/register.component';
-import { ArticlePageComponent } from './pages/article-page/article-page.component';
-import { AdminComponent } from './pages/admin/admin.component';
 import { hasPermissionGuard } from './guards/has-permission.guard';
-import { ArticleListPageComponent } from './pages/article-list-page/article-list-page.component';
-import { CreateArticleComponent } from './pages/compose/create-article/create-article.component';
-import { EditArticleComponent } from './pages/compose/edit-article/edit-article.component';
 import { PermissionLevel } from '@kotprog/common';
-import { SettingsComponent } from './pages/settings/settings.component';
-import { GalleryComponent } from './pages/gallery/gallery.component';
-import { LabelsComponent } from './pages/labels/labels.component';
-import { UsersComponent } from './pages/users/users.component';
 
 export const routes: Routes = [
   {
     path: 'home',
-    component: HomeComponent,
+    loadComponent: () =>
+      import('./pages/home/home.component').then((m) => m.HomeComponent),
   },
   {
     path: 'login',
-    component: LoginComponent,
+    loadComponent: () =>
+      import('./pages/login/login.component').then((m) => m.LoginComponent),
   },
   {
     path: 'register',
-    component: RegisterComponent,
+    loadComponent: () =>
+      import('./pages/register/register.component').then(
+        (m) => m.RegisterComponent,
+      ),
   },
   {
     path: 'article/:id',
-    component: ArticlePageComponent,
+    loadComponent: () =>
+      import('./pages/article-page/article-page.component').then(
+        (m) => m.ArticlePageComponent,
+      ),
   },
   {
     path: 'compose',
-    component: CreateArticleComponent,
+    loadComponent: () =>
+      import('./pages/compose/create-article/create-article.component').then(
+        (m) => m.CreateArticleComponent,
+      ),
     canActivate: [hasPermissionGuard(PermissionLevel.WRITER)],
   },
   {
     path: 'compose/:id',
-    component: EditArticleComponent,
+    loadComponent: () =>
+      import('./pages/compose/edit-article/edit-article.component').then(
+        (m) => m.EditArticleComponent,
+      ),
     canActivate: [hasPermissionGuard(PermissionLevel.WRITER)],
   },
   {
     path: 'admin',
-    component: AdminComponent,
+    loadComponent: () =>
+      import('./pages/admin/admin.component').then((m) => m.AdminComponent),
     canActivate: [hasPermissionGuard(PermissionLevel.ADMIN)],
   },
   {
     path: 'list',
-    component: ArticleListPageComponent,
+    loadComponent: () =>
+      import('./pages/article-list-page/article-list-page.component').then(
+        (m) => m.ArticleListPageComponent,
+      ),
   },
   {
     path: 'settings',
-    component: SettingsComponent,
+    loadComponent: () =>
+      import('./pages/settings/settings.component').then(
+        (m) => m.SettingsComponent,
+      ),
     canActivate: [hasPermissionGuard(PermissionLevel.USER)],
   },
   {
     path: 'gallery',
-    component: GalleryComponent,
+    loadComponent: () =>
+      import('./pages/gallery/gallery.component').then(
+        (m) => m.GalleryComponent,
+      ),
     canActivate: [hasPermissionGuard(PermissionLevel.WRITER)],
   },
   {
     path: 'labels',
-    component: LabelsComponent,
+    loadComponent: () =>
+      import('./pages/labels/labels.component').then((m) => m.LabelsComponent),
     canActivate: [hasPermissionGuard(PermissionLevel.ADMIN)],
   },
   {
     path: 'users',
-    component: UsersComponent,
+    loadComponent: () =>
+      import('./pages/users/users.component').then((m) => m.UsersComponent),
     canActivate: [hasPermissionGuard(PermissionLevel.ADMIN)],
   },
   {
